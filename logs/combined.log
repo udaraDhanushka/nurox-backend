@@ -1,0 +1,188 @@
+{"level":"info","message":"🚀 Server running on port 3000","service":"nurox-api","timestamp":"2025-06-21 01:38:38"}
+{"level":"info","message":"📚 API Documentation available at http://localhost:3000/api/docs","service":"nurox-api","timestamp":"2025-06-21 01:38:38"}
+{"level":"info","message":"::1 - - [20/Jun/2025:20:08:57 +0000] \"GET /api/docs HTTP/1.1\" 200 474 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"nurox-api","timestamp":"2025-06-21 01:38:57"}
+{"level":"info","message":"::1 - - [20/Jun/2025:20:08:58 +0000] \"GET /favicon.ico HTTP/1.1\" 404 48 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"nurox-api","timestamp":"2025-06-21 01:38:58"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"nurox-api","timestamp":"2025-06-21 01:49:25"}
+{"level":"info","message":"🚀 Server running on port 3000","service":"nurox-api","timestamp":"2025-06-21 08:51:12"}
+{"level":"info","message":"📚 API Documentation available at http://localhost:3000/api/docs","service":"nurox-api","timestamp":"2025-06-21 08:51:12"}
+{"level":"info","message":"::1 - - [21/Jun/2025:03:21:26 +0000] \"GET /api/docs HTTP/1.1\" 304 - \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"nurox-api","timestamp":"2025-06-21 08:51:26"}
+{"level":"info","message":"SIGINT received, shutting down gracefully","service":"nurox-api","timestamp":"2025-06-21 08:59:18"}
+{"level":"info","message":"🚀 Server running on port 3000","service":"nurox-api","timestamp":"2025-06-21 09:07:09"}
+{"level":"info","message":"📚 API Documentation available at http://localhost:3000/api/docs","service":"nurox-api","timestamp":"2025-06-21 09:07:09"}
+{"level":"info","message":"::1 - - [21/Jun/2025:03:51:54 +0000] \"GET /api/docs HTTP/1.1\" 304 - \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"nurox-api","timestamp":"2025-06-21 09:21:54"}
+{"level":"info","message":"::1 - - [21/Jun/2025:03:51:56 +0000] \"GET /favicon.ico HTTP/1.1\" 404 48 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36\"","service":"nurox-api","timestamp":"2025-06-21 09:21:56"}
+{"level":"info","message":"Socket connected: nqjctJHCHqv_kMWQAAAC","service":"nurox-api","timestamp":"2025-06-21 09:26:19"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:26:19"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:26:19"}
+{"level":"info","message":"Socket disconnected: nqjctJHCHqv_kMWQAAAC","service":"nurox-api","timestamp":"2025-06-21 09:26:35"}
+{"level":"info","message":"Socket connected: N7j_Cl9xGlm78r4JAAAE","service":"nurox-api","timestamp":"2025-06-21 09:26:35"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:26:35"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:26:36"}
+{"level":"info","message":"Socket disconnected: N7j_Cl9xGlm78r4JAAAE","service":"nurox-api","timestamp":"2025-06-21 09:26:57"}
+{"level":"info","message":"Socket connected: 4rzamV6GfGngYVMWAAAG","service":"nurox-api","timestamp":"2025-06-21 09:26:57"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:26:57"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:26:57"}
+{"level":"info","message":"Socket disconnected: 4rzamV6GfGngYVMWAAAG","service":"nurox-api","timestamp":"2025-06-21 09:27:15"}
+{"level":"info","message":"Socket connected: E16txx6KtlDaBv9yAAAI","service":"nurox-api","timestamp":"2025-06-21 09:27:15"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:27:15"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:27:15"}
+{"level":"info","message":"Socket disconnected: E16txx6KtlDaBv9yAAAI","service":"nurox-api","timestamp":"2025-06-21 09:27:29"}
+{"level":"info","message":"Socket connected: 96d_4LTy0n-CfkgCAAAK","service":"nurox-api","timestamp":"2025-06-21 09:27:29"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:27:29"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:27:30"}
+{"level":"info","message":"Socket disconnected: 96d_4LTy0n-CfkgCAAAK","service":"nurox-api","timestamp":"2025-06-21 09:27:44"}
+{"level":"info","message":"Socket connected: 5D4svRSa_qJcAfVgAAAM","service":"nurox-api","timestamp":"2025-06-21 09:27:44"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:27:44"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:27:44"}
+{"level":"info","message":"Socket disconnected: 5D4svRSa_qJcAfVgAAAM","service":"nurox-api","timestamp":"2025-06-21 09:29:17"}
+{"level":"info","message":"Socket connected: CH3l3uh7XGlD65eiAAAO","service":"nurox-api","timestamp":"2025-06-21 09:29:17"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:29:17"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:29:17"}
+{"level":"info","message":"Socket disconnected: CH3l3uh7XGlD65eiAAAO","service":"nurox-api","timestamp":"2025-06-21 09:30:03"}
+{"level":"info","message":"Socket connected: LTmK7Lh2hvQBeE91AAAQ","service":"nurox-api","timestamp":"2025-06-21 09:30:11"}
+{"level":"info","message":"Socket disconnected: LTmK7Lh2hvQBeE91AAAQ","service":"nurox-api","timestamp":"2025-06-21 09:30:12"}
+{"level":"info","message":"Socket connected: FCdMhV4AWu_uGQoDAAAS","service":"nurox-api","timestamp":"2025-06-21 09:30:12"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:30:12"}
+{"level":"info","message":"User new-1pto0z6 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:30:12"}
+{"level":"info","message":"Socket disconnected: FCdMhV4AWu_uGQoDAAAS","service":"nurox-api","timestamp":"2025-06-21 09:30:24"}
+{"level":"info","message":"::ffff:192.168.0.102 - - [21/Jun/2025:04:03:20 +0000] \"HEAD /api/auth/logout HTTP/1.1\" 401 51 \"-\" \"curl/8.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:33:20"}
+{"level":"info","message":"New user registered: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:35:41"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:05:41 +0000] \"POST /api/auth/register HTTP/1.1\" 201 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:35:41"}
+{"level":"info","message":"Socket connected: v6mbJzYYBgYpkROPAAAU","service":"nurox-api","timestamp":"2025-06-21 09:35:41"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:35:41"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:35:41"}
+{"level":"info","message":"User logged in: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:36:13"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:06:13 +0000] \"POST /api/auth/login HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:36:13"}
+{"level":"info","message":"User logged in: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:36:27"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:06:27 +0000] \"POST /api/auth/login HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:36:27"}
+{"level":"info","message":"User logged in: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:39:00"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:09:00 +0000] \"POST /api/auth/login HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:39:00"}
+{"level":"info","message":"Socket disconnected: v6mbJzYYBgYpkROPAAAU","service":"nurox-api","timestamp":"2025-06-21 09:45:50"}
+{"level":"info","message":"Socket connected: k4XDTmV5Ajq_TykFAAAW","service":"nurox-api","timestamp":"2025-06-21 09:45:50"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:45:50"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:45:50"}
+{"level":"info","message":"Socket disconnected: k4XDTmV5Ajq_TykFAAAW","service":"nurox-api","timestamp":"2025-06-21 09:46:20"}
+{"level":"info","message":"Socket connected: mYAR9HcumoFGZkw5AAAY","service":"nurox-api","timestamp":"2025-06-21 09:46:20"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:46:20"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:46:20"}
+{"level":"info","message":"User logged in: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:47:27"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:17:27 +0000] \"POST /api/auth/login HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:47:27"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:17:44 +0000] \"POST /api/auth/login HTTP/1.1\" 401 55 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:47:44"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:17:52 +0000] \"POST /api/auth/login HTTP/1.1\" 401 55 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:47:52"}
+{"level":"info","message":"User logged in: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:48:38"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:18:38 +0000] \"POST /api/auth/login HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:48:38"}
+{"level":"info","message":"User logged in: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 09:49:34"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:19:34 +0000] \"POST /api/auth/login HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:49:34"}
+{"level":"info","message":"Socket disconnected: mYAR9HcumoFGZkw5AAAY","service":"nurox-api","timestamp":"2025-06-21 09:51:39"}
+{"level":"info","message":"Socket connected: 1WvyfimWN8QIEcU0AAAa","service":"nurox-api","timestamp":"2025-06-21 09:51:39"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:51:39"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:51:39"}
+{"level":"info","message":"Socket disconnected: 1WvyfimWN8QIEcU0AAAa","service":"nurox-api","timestamp":"2025-06-21 09:51:59"}
+{"level":"info","message":"Socket connected: 6a6JBZQI1lT0JVgCAAAc","service":"nurox-api","timestamp":"2025-06-21 09:51:59"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:51:59"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:51:59"}
+{"level":"info","message":"Socket disconnected: 6a6JBZQI1lT0JVgCAAAc","service":"nurox-api","timestamp":"2025-06-21 09:52:21"}
+{"level":"info","message":"Socket connected: F0EUeTISlLcPm3eZAAAe","service":"nurox-api","timestamp":"2025-06-21 09:52:21"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:52:21"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:52:21"}
+{"level":"info","message":"Socket disconnected: F0EUeTISlLcPm3eZAAAe","service":"nurox-api","timestamp":"2025-06-21 09:59:01"}
+{"level":"info","message":"Socket connected: CJ4GQNz0xTXh0ZXbAAAh","service":"nurox-api","timestamp":"2025-06-21 09:59:11"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:59:11"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 09:59:12"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:29:42 +0000] \"PUT /api/users/profile HTTP/1.1\" 400 222 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 09:59:42"}
+{"level":"info","message":"Socket disconnected: CJ4GQNz0xTXh0ZXbAAAh","service":"nurox-api","timestamp":"2025-06-21 10:03:53"}
+{"level":"info","message":"Socket connected: vQH56npGFZ9LVFWeAAAj","service":"nurox-api","timestamp":"2025-06-21 10:04:02"}
+{"level":"info","message":"Socket disconnected: vQH56npGFZ9LVFWeAAAj","service":"nurox-api","timestamp":"2025-06-21 10:04:02"}
+{"level":"info","message":"Socket connected: BInWTbzZn3SmBOm8AAAl","service":"nurox-api","timestamp":"2025-06-21 10:04:02"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:04:02"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:04:02"}
+{"level":"info","message":"Socket disconnected: BInWTbzZn3SmBOm8AAAl","service":"nurox-api","timestamp":"2025-06-21 10:06:05"}
+{"level":"info","message":"Socket connected: eO9tHLxq7LDPf_D9AAAn","service":"nurox-api","timestamp":"2025-06-21 10:06:14"}
+{"level":"info","message":"Socket disconnected: eO9tHLxq7LDPf_D9AAAn","service":"nurox-api","timestamp":"2025-06-21 10:06:14"}
+{"level":"info","message":"Socket connected: GKdLUlN-NHIw3T1DAAAp","service":"nurox-api","timestamp":"2025-06-21 10:06:14"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:06:14"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:06:14"}
+{"level":"info","message":"Profile updated for user: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 10:06:37"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:36:37 +0000] \"PUT /api/users/profile HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 10:06:37"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:39:10 +0000] \"PUT /api/users/profile HTTP/1.1\" 400 234 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 10:09:10"}
+{"level":"info","message":"Socket disconnected: GKdLUlN-NHIw3T1DAAAp","service":"nurox-api","timestamp":"2025-06-21 10:14:05"}
+{"level":"info","message":"Socket connected: UKrjqQZAMxaskBawAAAr","service":"nurox-api","timestamp":"2025-06-21 10:15:58"}
+{"level":"info","message":"Socket disconnected: UKrjqQZAMxaskBawAAAr","service":"nurox-api","timestamp":"2025-06-21 10:15:58"}
+{"level":"info","message":"Socket connected: GNbPY7EZfSvYYpq_AAAt","service":"nurox-api","timestamp":"2025-06-21 10:15:58"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:15:58"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:15:58"}
+{"level":"info","message":"Socket disconnected: GNbPY7EZfSvYYpq_AAAt","service":"nurox-api","timestamp":"2025-06-21 10:18:23"}
+{"level":"info","message":"Socket connected: WZ-5PagsD3bthFfhAAAv","service":"nurox-api","timestamp":"2025-06-21 10:22:03"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:22:03"}
+{"level":"info","message":"Socket disconnected: WZ-5PagsD3bthFfhAAAv","service":"nurox-api","timestamp":"2025-06-21 10:22:19"}
+{"level":"info","message":"Socket connected: Rhs2_foaVyW6U56NAAAx","service":"nurox-api","timestamp":"2025-06-21 10:22:31"}
+{"level":"info","message":"Socket disconnected: Rhs2_foaVyW6U56NAAAx","service":"nurox-api","timestamp":"2025-06-21 10:22:32"}
+{"level":"info","message":"Socket connected: hsyvU0pPUTrV1jZBAAAz","service":"nurox-api","timestamp":"2025-06-21 10:22:32"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:22:32"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:22:32"}
+{"level":"info","message":"Profile updated for user: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 10:24:50"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:04:54:50 +0000] \"PUT /api/users/profile HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 10:24:50"}
+{"level":"info","message":"Socket disconnected: hsyvU0pPUTrV1jZBAAAz","service":"nurox-api","timestamp":"2025-06-21 10:32:52"}
+{"level":"info","message":"Socket connected: zhZDS4OMVlWehLaJAAA1","service":"nurox-api","timestamp":"2025-06-21 10:32:52"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:32:52"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:32:52"}
+{"level":"info","message":"Socket disconnected: zhZDS4OMVlWehLaJAAA1","service":"nurox-api","timestamp":"2025-06-21 10:33:22"}
+{"level":"info","message":"Socket connected: ogqnolecxw_P3HQFAAA3","service":"nurox-api","timestamp":"2025-06-21 10:33:23"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:33:23"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:33:23"}
+{"level":"info","message":"Socket disconnected: ogqnolecxw_P3HQFAAA3","service":"nurox-api","timestamp":"2025-06-21 10:34:26"}
+{"level":"info","message":"Socket connected: ufDLzUxuvL0HKiXiAAA5","service":"nurox-api","timestamp":"2025-06-21 10:34:26"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:34:26"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:34:26"}
+{"level":"info","message":"Socket disconnected: ufDLzUxuvL0HKiXiAAA5","service":"nurox-api","timestamp":"2025-06-21 10:35:59"}
+{"level":"info","message":"Socket connected: muE9XCR-jI-7TYSNAAA7","service":"nurox-api","timestamp":"2025-06-21 10:36:11"}
+{"level":"info","message":"Socket disconnected: muE9XCR-jI-7TYSNAAA7","service":"nurox-api","timestamp":"2025-06-21 10:36:12"}
+{"level":"info","message":"Socket connected: WPrHtljGgGA3PCbVAAA9","service":"nurox-api","timestamp":"2025-06-21 10:36:12"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:36:12"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:36:12"}
+{"level":"info","message":"Language updated for user: chamidu@patient.com to si","service":"nurox-api","timestamp":"2025-06-21 10:36:27"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:06:27 +0000] \"PUT /api/users/language HTTP/1.1\" 200 69 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 10:36:27"}
+{"level":"info","message":"Language updated for user: chamidu@patient.com to en","service":"nurox-api","timestamp":"2025-06-21 10:36:33"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:06:33 +0000] \"PUT /api/users/language HTTP/1.1\" 200 69 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 10:36:33"}
+{"level":"info","message":"Profile updated for user: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 10:38:23"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:08:23 +0000] \"PUT /api/users/profile HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 10:38:23"}
+{"level":"info","message":"Socket disconnected: WPrHtljGgGA3PCbVAAA9","service":"nurox-api","timestamp":"2025-06-21 10:42:27"}
+{"level":"info","message":"Socket connected: w7-c9GhM8AwFMTsQAAA_","service":"nurox-api","timestamp":"2025-06-21 10:42:27"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:42:27"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:42:27"}
+{"level":"info","message":"Socket disconnected: w7-c9GhM8AwFMTsQAAA_","service":"nurox-api","timestamp":"2025-06-21 10:42:43"}
+{"level":"info","message":"Socket connected: 7IytuG3GvBL9Mt-EAABB","service":"nurox-api","timestamp":"2025-06-21 10:42:43"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:42:43"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:42:43"}
+{"level":"info","message":"Socket disconnected: 7IytuG3GvBL9Mt-EAABB","service":"nurox-api","timestamp":"2025-06-21 10:42:58"}
+{"level":"info","message":"Socket connected: KNjN92m1mnxJm0AyAABD","service":"nurox-api","timestamp":"2025-06-21 10:42:58"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:42:58"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:42:58"}
+{"level":"info","message":"Socket disconnected: KNjN92m1mnxJm0AyAABD","service":"nurox-api","timestamp":"2025-06-21 10:52:25"}
+{"level":"info","message":"Socket connected: Ve_kbo-B2NgWTptwAABF","service":"nurox-api","timestamp":"2025-06-21 10:52:34"}
+{"level":"info","message":"Socket disconnected: Ve_kbo-B2NgWTptwAABF","service":"nurox-api","timestamp":"2025-06-21 10:52:34"}
+{"level":"info","message":"Socket connected: b1tlzlG_Bz0jz7rxAABH","service":"nurox-api","timestamp":"2025-06-21 10:52:34"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:52:34"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 10:52:34"}
+{"level":"info","message":"Socket disconnected: b1tlzlG_Bz0jz7rxAABH","service":"nurox-api","timestamp":"2025-06-21 11:00:06"}
+{"level":"info","message":"Socket connected: 8otGLhlKn1R9TFQBAABJ","service":"nurox-api","timestamp":"2025-06-21 11:00:15"}
+{"level":"info","message":"Socket disconnected: 8otGLhlKn1R9TFQBAABJ","service":"nurox-api","timestamp":"2025-06-21 11:00:16"}
+{"level":"info","message":"Socket connected: a2D0KHtrHDMazNgxAABL","service":"nurox-api","timestamp":"2025-06-21 11:00:16"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 11:00:16"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 11:00:16"}
+{"level":"info","message":"Socket disconnected: a2D0KHtrHDMazNgxAABL","service":"nurox-api","timestamp":"2025-06-21 11:01:26"}
+{"level":"info","message":"Socket connected: seijIj1Mu8alBY9JAABN","service":"nurox-api","timestamp":"2025-06-21 11:05:25"}
+{"level":"info","message":"User cmc5pufbv0000axarzpvz2u75 joined their room","service":"nurox-api","timestamp":"2025-06-21 11:05:25"}
+{"level":"info","message":"Profile updated for user: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 11:06:15"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:36:15 +0000] \"PUT /api/users/profile HTTP/1.1\" 200 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 11:06:15"}
+{"level":"info","message":"Patient profile updated for user: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 11:06:15"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:36:15 +0000] \"PUT /api/users/patient-profile HTTP/1.1\" 200 476 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 11:06:15"}
+{"level":"info","message":"User logged out: chamidu@patient.com","service":"nurox-api","timestamp":"2025-06-21 11:17:25"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:47:25 +0000] \"POST /api/auth/logout HTTP/1.1\" 200 52 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 11:17:25"}
+{"level":"info","message":"Socket disconnected: seijIj1Mu8alBY9JAABN","service":"nurox-api","timestamp":"2025-06-21 11:17:25"}
+{"level":"info","message":"New user registered: udara.vidusl@gmail.com","service":"nurox-api","timestamp":"2025-06-21 11:18:43"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:48:43 +0000] \"POST /api/auth/register HTTP/1.1\" 201 - \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 11:18:43"}
+{"level":"info","message":"Socket connected: 3Fb9cEZgUk4thFYvAABP","service":"nurox-api","timestamp":"2025-06-21 11:18:43"}
+{"level":"info","message":"User cmc5tixws000iaxareufhgthr joined their room","service":"nurox-api","timestamp":"2025-06-21 11:18:43"}
+{"level":"info","message":"User cmc5tixws000iaxareufhgthr joined their room","service":"nurox-api","timestamp":"2025-06-21 11:18:43"}
+{"level":"info","message":"::ffff:192.168.0.100 - - [21/Jun/2025:05:49:47 +0000] \"PUT /api/users/profile HTTP/1.1\" 400 222 \"-\" \"Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0\"","service":"nurox-api","timestamp":"2025-06-21 11:19:47"}
