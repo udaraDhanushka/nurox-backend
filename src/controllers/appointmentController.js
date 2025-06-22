@@ -17,14 +17,45 @@ const appointmentController = {
         location,
         isVirtual = false,
         fee,
-        notes
+        notes,
+        tokenNumber
       } = req.body;
+
+      // Validate token number uniqueness if provided
+      if (tokenNumber) {
+        const appointmentDateOnly = new Date(appointmentDate);
+        appointmentDateOnly.setHours(0, 0, 0, 0);
+        const nextDay = new Date(appointmentDateOnly);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        const existingTokenAppointment = await prisma.appointment.findFirst({
+          where: {
+            doctorId,
+            tokenNumber,
+            appointmentDate: {
+              gte: appointmentDateOnly,
+              lt: nextDay
+            },
+            status: {
+              not: 'CANCELLED'
+            }
+          }
+        });
+
+        if (existingTokenAppointment) {
+          return res.status(409).json({
+            success: false,
+            message: `Token number ${tokenNumber} is already booked for this doctor on this date`
+          });
+        }
+      }
 
       const appointment = await prisma.appointment.create({
         data: {
           patientId: req.user.id,
           doctorId,
           type,
+          status: 'PENDING', // Set status to PENDING until payment is completed
           title,
           description,
           appointmentDate: new Date(appointmentDate),
@@ -32,7 +63,9 @@ const appointmentController = {
           location,
           isVirtual,
           fee,
-          notes
+          notes,
+          tokenNumber,
+          isReschedule: false // New appointments are not rescheduled
         },
         include: {
           patient: {
@@ -247,7 +280,7 @@ const appointmentController = {
   updateAppointment: async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, notes, meetingLink } = req.body;
+      const { status, notes, meetingLink, tokenNumber } = req.body;
 
       const appointment = await prisma.appointment.findUnique({
         where: { id }
@@ -272,6 +305,7 @@ const appointmentController = {
       if (status !== undefined) updateData.status = status;
       if (notes !== undefined) updateData.notes = notes;
       if (meetingLink !== undefined) updateData.meetingLink = meetingLink;
+      if (tokenNumber !== undefined) updateData.tokenNumber = tokenNumber;
 
       const updatedAppointment = await prisma.appointment.update({
         where: { id },
@@ -478,7 +512,8 @@ const appointmentController = {
         },
         select: {
           appointmentDate: true,
-          duration: true
+          duration: true,
+          tokenNumber: true
         }
       });
 
@@ -495,6 +530,204 @@ const appointmentController = {
       res.status(500).json({
         success: false,
         message: 'Failed to get doctor availability'
+      });
+    }
+  },
+
+  // Get token availability for a specific doctor and date
+  getTokenAvailability: async (req, res) => {
+    try {
+      const { doctorId } = req.params;
+      const { date } = req.query;
+
+      if (!date) {
+        return res.status(400).json({
+          success: false,
+          message: 'Date parameter is required'
+        });
+      }
+
+      const startDate = new Date(date);
+      startDate.setHours(0, 0, 0, 0);
+      
+      const endDate = new Date(date);
+      endDate.setHours(23, 59, 59, 999);
+
+      // Get all appointments for this doctor on this date
+      const bookedAppointments = await prisma.appointment.findMany({
+        where: {
+          doctorId,
+          appointmentDate: {
+            gte: startDate,
+            lte: endDate
+          },
+          status: {
+            not: 'CANCELLED'
+          },
+          tokenNumber: {
+            not: null
+          }
+        },
+        select: {
+          tokenNumber: true,
+          status: true
+        }
+      });
+
+      // Extract booked token numbers
+      const bookedTokens = bookedAppointments.map(apt => apt.tokenNumber);
+
+      res.json({
+        success: true,
+        data: {
+          date,
+          doctorId,
+          bookedTokens,
+          totalBooked: bookedTokens.length
+        }
+      });
+    } catch (error) {
+      logger.error('Get token availability error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get token availability'
+      });
+    }
+  },
+
+  // Reschedule appointment
+  rescheduleAppointment: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { 
+        newAppointmentDate, 
+        tokenNumber, 
+        notes 
+      } = req.body;
+
+      if (!newAppointmentDate) {
+        return res.status(400).json({
+          success: false,
+          message: 'New appointment date is required'
+        });
+      }
+
+      const appointment = await prisma.appointment.findUnique({
+        where: { id }
+      });
+
+      if (!appointment) {
+        return res.status(404).json({
+          success: false,
+          message: 'Appointment not found'
+        });
+      }
+
+      // Check authorization
+      if (appointment.patientId !== req.user.id && appointment.doctorId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied'
+        });
+      }
+
+      // Only allow rescheduling of CANCELED appointments
+      if (appointment.status !== 'CANCELED') {
+        return res.status(400).json({
+          success: false,
+          message: 'Only canceled appointments can be rescheduled'
+        });
+      }
+
+      // Validate token number uniqueness if provided
+      if (tokenNumber) {
+        const appointmentDateOnly = new Date(newAppointmentDate);
+        appointmentDateOnly.setHours(0, 0, 0, 0);
+        const nextDay = new Date(appointmentDateOnly);
+        nextDay.setDate(nextDay.getDate() + 1);
+
+        const existingTokenAppointment = await prisma.appointment.findFirst({
+          where: {
+            doctorId: appointment.doctorId,
+            tokenNumber,
+            appointmentDate: {
+              gte: appointmentDateOnly,
+              lt: nextDay
+            },
+            status: {
+              not: 'CANCELED'
+            }
+          }
+        });
+
+        if (existingTokenAppointment) {
+          return res.status(409).json({
+            success: false,
+            message: `Token number ${tokenNumber} is already booked for this doctor on this date`
+          });
+        }
+      }
+
+      const updateData = {
+        appointmentDate: new Date(newAppointmentDate),
+        status: 'PENDING', // Reset to pending for payment
+        isReschedule: true,
+        updatedAt: new Date()
+      };
+
+      if (tokenNumber !== undefined) updateData.tokenNumber = tokenNumber;
+      if (notes !== undefined) updateData.notes = notes;
+
+      const updatedAppointment = await prisma.appointment.update({
+        where: { id },
+        data: updateData,
+        include: {
+          patient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              profileImage: true
+            }
+          },
+          doctor: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              phone: true,
+              profileImage: true,
+              doctorProfile: {
+                select: {
+                  specialization: true,
+                  licenseNumber: true,
+                  hospitalAffiliation: true,
+                  consultationFee: true,
+                  experience: true,
+                  rating: true,
+                  reviewCount: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      logger.info(`Appointment ${id} rescheduled by user ${req.user.email}`);
+
+      res.json({
+        success: true,
+        data: updatedAppointment,
+        message: 'Appointment rescheduled successfully. Payment required to confirm.'
+      });
+    } catch (error) {
+      logger.error('Reschedule appointment error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to reschedule appointment'
       });
     }
   }

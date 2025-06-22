@@ -18,12 +18,10 @@ enum UserRole {
 }
 
 enum AppointmentStatus {
-  PENDING
-  CONFIRMED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  NO_SHOW
+  PENDING    // Temporary status before payment confirmation
+  CONFIRMED  // After payment is completed
+  COMPLETED  // Appointment finished
+  CANCELED   // Appointment canceled
 }
 
 enum AppointmentType {
@@ -279,6 +277,8 @@ model Appointment {
   meetingLink String?
   fee         Float?
   notes       String?
+  tokenNumber Int?              // Token number for queue management
+  isReschedule Boolean          @default(false) // Track if appointment was rescheduled
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   

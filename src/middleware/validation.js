@@ -85,16 +85,25 @@ const schemas = {
     appointmentDate: Joi.date().required(),
     duration: Joi.number().min(15).max(240).optional(),
     isVirtual: Joi.boolean().optional(),
-    notes: Joi.string().optional()
+    notes: Joi.string().optional(),
+    tokenNumber: Joi.number().integer().min(1).max(100).optional(),
+    isReschedule: Joi.boolean().optional()
   }),
 
   updateAppointment: Joi.object({
     status: Joi.string().valid(
-      'PENDING', 'CONFIRMED', 'IN_PROGRESS', 
-      'COMPLETED', 'CANCELLED', 'NO_SHOW'
+      'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELED'
     ).optional(),
     notes: Joi.string().optional(),
-    meetingLink: Joi.string().optional()
+    meetingLink: Joi.string().optional(),
+    tokenNumber: Joi.number().integer().min(1).max(100).optional(),
+    isReschedule: Joi.boolean().optional()
+  }),
+
+  rescheduleAppointment: Joi.object({
+    newAppointmentDate: Joi.date().required(),
+    tokenNumber: Joi.number().integer().min(1).max(100).optional(),
+    notes: Joi.string().optional()
   }),
 
   // Prescription schemas

@@ -63,9 +63,10 @@ const paymentController = {
         success: true,
         message: 'Payment intent created successfully',
         data: {
-          paymentId: payment.id,
+          paymentIntentId: paymentIntent.id,
           clientSecret: paymentIntent.client_secret,
-          amount: payment.amount
+          amount: payment.amount,
+          currency: 'usd'
         }
       });
     } catch (error) {
@@ -80,10 +81,18 @@ const paymentController = {
   // Confirm payment
   confirmPayment: async (req, res) => {
     try {
-      const { paymentId, paymentIntentId } = req.body;
+      const { paymentIntentId } = req.body;
 
+      if (!paymentIntentId) {
+        return res.status(400).json({
+          success: false,
+          message: 'Payment intent ID is required'
+        });
+      }
+
+      // Find payment by transaction ID (Stripe payment intent ID)
       const payment = await prisma.payment.findUnique({
-        where: { id: paymentId }
+        where: { transactionId: paymentIntentId }
       });
 
       if (!payment) {
@@ -105,8 +114,8 @@ const paymentController = {
 
       if (paymentIntent.status === 'succeeded') {
         // Update payment status
-        await prisma.payment.update({
-          where: { id: paymentId },
+        const updatedPayment = await prisma.payment.update({
+          where: { id: payment.id },
           data: {
             status: 'COMPLETED',
             paidAt: new Date(),
@@ -117,6 +126,16 @@ const paymentController = {
           }
         });
 
+        // If payment is for an appointment, update appointment status to CONFIRMED
+        if (payment.appointmentId) {
+          await prisma.appointment.update({
+            where: { id: payment.appointmentId },
+            data: { status: 'CONFIRMED' }
+          });
+
+          logger.info(`Appointment ${payment.appointmentId} status updated to CONFIRMED after payment confirmation`);
+        }
+
         // Create notification for successful payment
         await prisma.notification.create({
           data: {
@@ -124,34 +143,37 @@ const paymentController = {
             type: 'PAYMENT_DUE',
             title: 'Payment Successful',
             message: `Your payment of $${payment.amount} has been processed successfully`,
-            data: { paymentId }
+            data: { paymentId: payment.id }
           }
         });
 
-        logger.info(`Payment confirmed: ${paymentId} for user ${req.user.email}`);
+        logger.info(`Payment confirmed: ${payment.id} for user ${req.user.email}`);
 
         res.json({
           success: true,
           message: 'Payment confirmed successfully',
-          data: {
-            paymentId,
+          payment: {
+            id: payment.id,
+            status: 'COMPLETED',
             amount: payment.amount,
-            status: 'COMPLETED'
+            transactionId: paymentIntentId
           }
         });
       } else {
         // Update payment status as failed
         await prisma.payment.update({
-          where: { id: paymentId },
+          where: { id: payment.id },
           data: { status: 'FAILED' }
         });
 
         res.status(400).json({
           success: false,
           message: 'Payment failed or incomplete',
-          data: {
-            paymentId,
-            status: paymentIntent.status
+          payment: {
+            id: payment.id,
+            status: paymentIntent.status,
+            amount: payment.amount,
+            transactionId: paymentIntentId
           }
         });
       }

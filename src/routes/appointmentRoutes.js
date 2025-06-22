@@ -14,9 +14,11 @@ router.get('/', validateQuery(schemas.appointmentQuery), appointmentController.g
 router.get('/:id', appointmentController.getAppointment);
 router.put('/:id', validate(schemas.updateAppointment), appointmentController.updateAppointment);
 router.delete('/:id', appointmentController.cancelAppointment);
+router.put('/:id/reschedule', validate(schemas.rescheduleAppointment), appointmentController.rescheduleAppointment);
 
 // Doctor-related routes
 router.get('/doctors/list', appointmentController.getDoctors);
 router.get('/doctors/:doctorId/availability', appointmentController.getDoctorAvailability);
+router.get('/doctors/:doctorId/tokens', appointmentController.getTokenAvailability);
 
 module.exports = router;
