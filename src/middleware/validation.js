@@ -84,6 +84,7 @@ const schemas = {
     description: Joi.string().optional(),
     appointmentDate: Joi.date().required(),
     duration: Joi.number().min(15).max(240).optional(),
+    location: Joi.string().optional(),
     isVirtual: Joi.boolean().optional(),
     notes: Joi.string().optional(),
     tokenNumber: Joi.number().integer().min(1).max(100).optional(),

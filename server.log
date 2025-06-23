@@ -1,0 +1,160 @@
+
+> nurox-backend@1.0.0 start
+> node src/server.js
+
+2025-06-24 01:27:45 [[32minfo[39m]: 🚀 Server running on port 3000 {
+  "service": "nurox-api"
+}
+2025-06-24 01:27:45 [[32minfo[39m]: 📚 API Documentation available at http://localhost:3000/api/docs {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:48 [[32minfo[39m]: Socket connected: you9G_oOqi3EQJwIAAAB {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:48 [[32minfo[39m]: Socket disconnected: you9G_oOqi3EQJwIAAAB {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:48 [[32minfo[39m]: Socket connected: gmFW4OoFOXPoaRvFAAAD {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:48 [[32minfo[39m]: User cmc8kmntc00002duuwc8iu5yk joined their room {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:48 [[32minfo[39m]: User cmc8kmntc00002duuwc8iu5yk joined their room {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:51 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:19:58:51 +0000] "GET /api/appointments HTTP/1.1" 200 98 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:28:59 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:19:58:59 +0000] "GET /api/appointments/doctors/list HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:29:03 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:19:59:03 +0000] "GET /api/appointments/doctors/cmc8ylx6x0000c80p4r7o6kzy/tokens?date=2025-06-24 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:29:12 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:19:59:12 +0000] "GET /api/appointments/doctors/list HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:29:13 [[32minfo[39m]: Appointment created: cmc9isf5x00016mccujb7lr1q by chamidu@patient.com {
+  "service": "nurox-api"
+}
+2025-06-24 01:29:13 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:19:59:13 +0000] "POST /api/appointments HTTP/1.1" 201 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:29:31 [[32minfo[39m]: Payment intent created: cmc9issdp00056mcctlztnhj1 for user chamidu@patient.com {
+  "service": "nurox-api"
+}
+2025-06-24 01:29:31 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:19:59:31 +0000] "POST /api/payments/intent HTTP/1.1" 201 231 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:10 [[32minfo[39m]: User logged out: chamidu@patient.com {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:10 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:00:10 +0000] "POST /api/auth/logout HTTP/1.1" 200 52 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:11 [[32minfo[39m]: Socket disconnected: gmFW4OoFOXPoaRvFAAAD {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:44 [[32minfo[39m]: User logged in: ruwini@asiri.lk {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:44 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:00:44 +0000] "POST /api/auth/login HTTP/1.1" 200 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:44 [[32minfo[39m]: Socket connected: xRpM1WQGScw5qGUuAAAF {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:44 [[32minfo[39m]: User cmc8ylx6x0000c80p4r7o6kzy joined their room {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:44 [[32minfo[39m]: User cmc8ylx6x0000c80p4r7o6kzy joined their room {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:45 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:00:45 +0000] "GET /api/appointments?startDate=2025-05-24&limit=50 HTTP/1.1" 200 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:46 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:00:46 +0000] "GET /api/appointments?status=CONFIRMED&limit=50&startDate=2025-06-23&endDate=2025-06-23 HTTP/1.1" 200 98 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:30:47 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:00:47 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 200 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:32:42 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:02:42 +0000] "GET /api/appointments?startDate=2025-05-24&limit=50 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:32:42 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:02:42 +0000] "GET /api/appointments?status=CONFIRMED&limit=50&startDate=2025-06-23&endDate=2025-06-23 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:32:43 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:02:43 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:32:50 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:02:50 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:32:59 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:02:59 +0000] "GET /api/appointments/cmc9isf5x00016mccujb7lr1q HTTP/1.1" 200 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:33:43 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:03:43 +0000] "GET /api/appointments?status=CONFIRMED&limit=50&startDate=2025-06-23&endDate=2025-06-23 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:33:46 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:03:46 +0000] "GET /api/appointments?status=CONFIRMED&limit=50&startDate=2025-06-24&endDate=2025-06-24 HTTP/1.1" 200 98 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:34:24 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:04:24 +0000] "GET /api/appointments?status=CONFIRMED&limit=50&startDate=2025-06-23&endDate=2025-06-23 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:34:41 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:04:41 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:36:05 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:06:05 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:36:13 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:06:13 +0000] "GET /api/appointments?limit=100 HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:37:33 [[32minfo[39m]: User logged out: ruwini@asiri.lk {
+  "service": "nurox-api"
+}
+2025-06-24 01:37:33 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:07:33 +0000] "POST /api/auth/logout HTTP/1.1" 200 52 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:37:33 [[32minfo[39m]: Socket disconnected: xRpM1WQGScw5qGUuAAAF {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:39 [[32minfo[39m]: New user registered: amasha@patient.com {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:39 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:08:39 +0000] "POST /api/auth/register HTTP/1.1" 201 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:39 [[32minfo[39m]: Socket connected: t8KFgPRzrvydZka6AAAH {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:39 [[32minfo[39m]: User cmc9j4j9r00086mcch9hd5g86 joined their room {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:39 [[32minfo[39m]: User cmc9j4j9r00086mcch9hd5g86 joined their room {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:41 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:08:41 +0000] "GET /api/appointments HTTP/1.1" 200 98 "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:38:43 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:08:43 +0000] "GET /api/appointments HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:40:57 [[32minfo[39m]: Profile updated for user: amasha@patient.com {
+  "service": "nurox-api"
+}
+2025-06-24 01:40:57 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:10:57 +0000] "PUT /api/users/profile HTTP/1.1" 200 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:40:58 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:10:58 +0000] "GET /api/appointments HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:40:59 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:10:59 +0000] "GET /api/appointments HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}
+2025-06-24 01:41:06 [[32minfo[39m]: ::ffff:192.168.0.100 - - [23/Jun/2025:20:11:06 +0000] "GET /api/appointments HTTP/1.1" 304 - "-" "Expo/1017699 CFNetwork/3826.500.131 Darwin/24.5.0" {
+  "service": "nurox-api"
+}

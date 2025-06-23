@@ -37,7 +37,7 @@ const appointmentController = {
               lt: nextDay
             },
             status: {
-              not: 'CANCELLED'
+              not: 'CANCELED'
             }
           }
         });
@@ -562,7 +562,7 @@ const appointmentController = {
             lte: endDate
           },
           status: {
-            not: 'CANCELLED'
+            not: 'CANCELED'
           },
           tokenNumber: {
             not: null
