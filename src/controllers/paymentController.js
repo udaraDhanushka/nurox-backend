@@ -1,12 +1,12 @@
 const { PrismaClient } = require('@prisma/client');
 const logger = require('../utils/logger');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const payHereService = require('../utils/payhere');
 
 const prisma = new PrismaClient();
 
 const paymentController = {
-  // Create payment intent
-  createPaymentIntent: async (req, res) => {
+  // Create PayHere payment
+  createPayHerePayment: async (req, res) => {
     try {
       const {
         amount,
@@ -14,6 +14,7 @@ const paymentController = {
         prescriptionId,
         claimId,
         description,
+        customerInfo,
         metadata = {}
       } = req.body;
 
@@ -23,6 +24,17 @@ const paymentController = {
           message: 'Valid amount is required'
         });
       }
+
+      // Validate customer info
+      if (!customerInfo || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email) {
+        return res.status(400).json({
+          success: false,
+          message: 'Customer information is required (firstName, lastName, email)'
+        });
+      }
+
+      // Generate unique order ID
+      const orderId = `NUROX-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       // Create payment record
       const payment = await prisma.payment.create({
@@ -35,45 +47,41 @@ const paymentController = {
           method: 'CARD',
           status: 'PENDING',
           description,
-          metadata
+          transactionId: orderId,
+          metadata: {
+            ...metadata,
+            orderId,
+            customerInfo
+          }
         }
       });
 
-      // Create Stripe payment intent
-      const paymentIntent = await stripe.paymentIntents.create({
-        amount: Math.round(amount * 100), // Convert to cents
-        currency: 'usd',
-        metadata: {
-          paymentId: payment.id,
-          userId: req.user.id,
-          appointmentId: appointmentId || '',
-          prescriptionId: prescriptionId || ''
-        }
+      // Generate PayHere payment form data
+      const payHereData = payHereService.generatePaymentFormData({
+        orderId,
+        amount: parseFloat(amount),
+        items: description,
+        firstName: customerInfo.firstName,
+        lastName: customerInfo.lastName,
+        email: customerInfo.email,
+        phone: customerInfo.phone || '0771234567',
+        address: customerInfo.address || 'Colombo',
+        city: customerInfo.city || 'Colombo',
+        country: customerInfo.country || 'Sri Lanka'
       });
 
-      // Update payment with transaction ID
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { transactionId: paymentIntent.id }
-      });
-
-      logger.info(`Payment intent created: ${payment.id} for user ${req.user.email}`);
+      logger.info(`PayHere payment created: ${payment.id} for user ${req.user.email}`);
 
       res.status(201).json({
         success: true,
-        message: 'Payment intent created successfully',
-        data: {
-          paymentIntentId: paymentIntent.id,
-          clientSecret: paymentIntent.client_secret,
-          amount: payment.amount,
-          currency: 'usd'
-        }
+        message: 'PayHere payment created successfully',
+        data: payHereData
       });
     } catch (error) {
-      logger.error('Create payment intent error:', error);
+      logger.error('Create PayHere payment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create payment intent'
+        message: 'Failed to create PayHere payment'
       });
     }
   },
@@ -81,18 +89,18 @@ const paymentController = {
   // Confirm payment
   confirmPayment: async (req, res) => {
     try {
-      const { paymentIntentId } = req.body;
+      const { orderId, paymentId, payhereData } = req.body;
 
-      if (!paymentIntentId) {
+      if (!orderId || !paymentId) {
         return res.status(400).json({
           success: false,
-          message: 'Payment intent ID is required'
+          message: 'Order ID and Payment ID are required'
         });
       }
 
-      // Find payment by transaction ID (Stripe payment intent ID)
+      // Find payment by order ID (transaction ID)
       const payment = await prisma.payment.findUnique({
-        where: { transactionId: paymentIntentId }
+        where: { transactionId: orderId }
       });
 
       if (!payment) {
@@ -109,76 +117,55 @@ const paymentController = {
         });
       }
 
-      // Retrieve payment intent from Stripe
-      const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-
-      if (paymentIntent.status === 'succeeded') {
-        // Update payment status
-        const updatedPayment = await prisma.payment.update({
-          where: { id: payment.id },
-          data: {
-            status: 'COMPLETED',
-            paidAt: new Date(),
-            metadata: {
-              ...payment.metadata,
-              stripePaymentIntent: paymentIntent
-            }
+      // Update payment status
+      const updatedPayment = await prisma.payment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'COMPLETED',
+          paidAt: new Date(),
+          metadata: {
+            ...payment.metadata,
+            payHerePaymentId: paymentId,
+            payhereData: payhereData || {}
           }
-        });
-
-        // If payment is for an appointment, update appointment status to CONFIRMED
-        if (payment.appointmentId) {
-          await prisma.appointment.update({
-            where: { id: payment.appointmentId },
-            data: { status: 'CONFIRMED' }
-          });
-
-          logger.info(`Appointment ${payment.appointmentId} status updated to CONFIRMED after payment confirmation`);
         }
+      });
 
-        // Create notification for successful payment
-        await prisma.notification.create({
-          data: {
-            userId: req.user.id,
-            type: 'PAYMENT_DUE',
-            title: 'Payment Successful',
-            message: `Your payment of $${payment.amount} has been processed successfully`,
-            data: { paymentId: payment.id }
-          }
+      // If payment is for an appointment, update appointment status to CONFIRMED
+      if (payment.appointmentId) {
+        await prisma.appointment.update({
+          where: { id: payment.appointmentId },
+          data: { status: 'CONFIRMED' }
         });
 
-        logger.info(`Payment confirmed: ${payment.id} for user ${req.user.email}`);
-
-        res.json({
-          success: true,
-          message: 'Payment confirmed successfully',
-          payment: {
-            id: payment.id,
-            status: 'COMPLETED',
-            amount: payment.amount,
-            transactionId: paymentIntentId
-          }
-        });
-      } else {
-        // Update payment status as failed
-        await prisma.payment.update({
-          where: { id: payment.id },
-          data: { status: 'FAILED' }
-        });
-
-        res.status(400).json({
-          success: false,
-          message: 'Payment failed or incomplete',
-          payment: {
-            id: payment.id,
-            status: paymentIntent.status,
-            amount: payment.amount,
-            transactionId: paymentIntentId
-          }
-        });
+        logger.info(`Appointment ${payment.appointmentId} status updated to CONFIRMED after PayHere payment confirmation`);
       }
+
+      // Create notification for successful payment
+      await prisma.notification.create({
+        data: {
+          userId: req.user.id,
+          type: 'PAYMENT_DUE',
+          title: 'Payment Successful',
+          message: `Your payment of Rs. ${payment.amount} has been processed successfully via PayHere`,
+          data: { paymentId: payment.id, payHerePaymentId: paymentId }
+        }
+      });
+
+      logger.info(`PayHere payment confirmed: ${payment.id} for user ${req.user.email}`);
+
+      res.json({
+        success: true,
+        message: 'Payment confirmed successfully',
+        payment: {
+          id: payment.id,
+          status: 'COMPLETED',
+          amount: payment.amount,
+          transactionId: paymentId
+        }
+      });
     } catch (error) {
-      logger.error('Confirm payment error:', error);
+      logger.error('Confirm PayHere payment error:', error);
       res.status(500).json({
         success: false,
         message: 'Failed to confirm payment'
@@ -492,38 +479,45 @@ const paymentController = {
     }
   },
 
-  // Webhook handler for Stripe events
-  handleStripeWebhook: async (req, res) => {
+  // Webhook handler for PayHere notifications
+  handlePayHereWebhook: async (req, res) => {
     try {
-      const sig = req.headers['stripe-signature'];
-      const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
-
-      let event;
-
-      try {
-        event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
-      } catch (err) {
-        logger.error(`Webhook signature verification failed: ${err.message}`);
-        return res.status(400).send(`Webhook Error: ${err.message}`);
+      const notificationData = req.body;
+      
+      // Validate required fields
+      const requiredFields = ['merchant_id', 'order_id', 'payment_id', 'payhere_amount', 'payhere_currency', 'status_code', 'md5sig'];
+      const missingFields = requiredFields.filter(field => !notificationData[field]);
+      
+      if (missingFields.length > 0) {
+        logger.warn(`PayHere webhook missing fields: ${missingFields.join(', ')}`);
+        return res.status(400).json({
+          success: false,
+          message: `Missing required fields: ${missingFields.join(', ')}`
+        });
       }
 
-      // Handle the event
-      switch (event.type) {
-        case 'payment_intent.succeeded':
-          const paymentIntent = event.data.object;
-          await handlePaymentSuccess(paymentIntent);
-          break;
-        case 'payment_intent.payment_failed':
-          const failedPayment = event.data.object;
-          await handlePaymentFailure(failedPayment);
-          break;
-        default:
-          console.log(`Unhandled event type ${event.type}`);
+      // Verify hash signature
+      const isValidHash = payHereService.verifyNotificationHash(notificationData);
+      if (!isValidHash) {
+        logger.warn('PayHere webhook hash verification failed');
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid hash signature'
+        });
       }
 
-      res.json({ received: true });
+      // Get payment status
+      const paymentStatus = payHereService.getPaymentStatus(notificationData.status_code);
+      
+      // Handle payment notification
+      await handlePayHereNotification(notificationData, paymentStatus);
+
+      res.json({ 
+        success: true, 
+        message: 'Notification processed successfully' 
+      });
     } catch (error) {
-      logger.error('Stripe webhook error:', error);
+      logger.error('PayHere webhook error:', error);
       res.status(500).json({
         success: false,
         message: 'Webhook processing failed'
@@ -532,46 +526,91 @@ const paymentController = {
   }
 };
 
-// Helper function to handle successful payments
-async function handlePaymentSuccess(paymentIntent) {
+// Helper function to handle PayHere notifications
+async function handlePayHereNotification(notificationData, paymentStatus) {
   try {
+    const { order_id, payment_id, payhere_amount, payhere_currency, status_code } = notificationData;
+    
+    // Find payment by order ID
     const payment = await prisma.payment.findFirst({
-      where: { transactionId: paymentIntent.id }
+      where: { transactionId: order_id }
     });
 
-    if (payment) {
-      await prisma.payment.update({
-        where: { id: payment.id },
+    if (!payment) {
+      logger.warn(`PayHere notification: Payment not found for order ${order_id}`);
+      return;
+    }
+
+    // Update payment status
+    const updateData = {
+      status: paymentStatus.status,
+      metadata: {
+        ...payment.metadata,
+        payHerePaymentId: payment_id,
+        payHereNotification: notificationData,
+        statusCode: status_code
+      }
+    };
+
+    // Set paid date for successful payments
+    if (paymentStatus.status === 'COMPLETED') {
+      updateData.paidAt = new Date();
+    }
+
+    await prisma.payment.update({
+      where: { id: payment.id },
+      data: updateData
+    });
+
+    // Handle successful payment
+    if (paymentStatus.status === 'COMPLETED') {
+      // Update appointment status if applicable
+      if (payment.appointmentId) {
+        await prisma.appointment.update({
+          where: { id: payment.appointmentId },
+          data: { status: 'CONFIRMED' }
+        });
+        
+        logger.info(`Appointment ${payment.appointmentId} confirmed via PayHere webhook`);
+      }
+
+      // Create success notification
+      await prisma.notification.create({
         data: {
-          status: 'COMPLETED',
-          paidAt: new Date()
+          userId: payment.userId,
+          type: 'PAYMENT_DUE',
+          title: 'Payment Successful',
+          message: `Your payment of Rs. ${payhere_amount} has been processed successfully via PayHere`,
+          data: { 
+            paymentId: payment.id, 
+            payHerePaymentId: payment_id,
+            orderId: order_id
+          }
         }
       });
 
-      logger.info(`Payment confirmed via webhook: ${payment.id}`);
-    }
-  } catch (error) {
-    logger.error('Handle payment success error:', error);
-  }
-}
-
-// Helper function to handle failed payments
-async function handlePaymentFailure(paymentIntent) {
-  try {
-    const payment = await prisma.payment.findFirst({
-      where: { transactionId: paymentIntent.id }
-    });
-
-    if (payment) {
-      await prisma.payment.update({
-        where: { id: payment.id },
-        data: { status: 'FAILED' }
+      logger.info(`PayHere payment confirmed via webhook: ${payment.id}, PayHere ID: ${payment_id}`);
+    } else {
+      // Create failure notification for failed payments
+      await prisma.notification.create({
+        data: {
+          userId: payment.userId,
+          type: 'PAYMENT_DUE',
+          title: 'Payment Failed',
+          message: `Your payment of Rs. ${payhere_amount} could not be processed: ${paymentStatus.message}`,
+          data: { 
+            paymentId: payment.id, 
+            payHerePaymentId: payment_id,
+            orderId: order_id,
+            failureReason: paymentStatus.message
+          }
+        }
       });
 
-      logger.info(`Payment failed via webhook: ${payment.id}`);
+      logger.info(`PayHere payment failed via webhook: ${payment.id}, Status: ${paymentStatus.message}`);
     }
   } catch (error) {
-    logger.error('Handle payment failure error:', error);
+    logger.error('Handle PayHere notification error:', error);
   }
 }
 

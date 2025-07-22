@@ -14,7 +14,14 @@ enum UserRole {
   PATIENT
   DOCTOR
   PHARMACIST
-  ADMIN
+  ADMIN              // Legacy admin role - to be migrated to SUPER_ADMIN
+  MLT                // Medical Laboratory Technician
+  HOSPITAL_ADMIN     // Hospital Administrator
+  PHARMACY_ADMIN     // Pharmacy Administrator
+  LAB_ADMIN          // Laboratory Administrator
+  INSURANCE_ADMIN    // Insurance Company Administrator
+  INSURANCE_AGENT    // Insurance Agent
+  SUPER_ADMIN        // System Super Administrator
 }
 
 enum AppointmentStatus {
@@ -135,6 +142,20 @@ enum FrequencyType {
   MONTHLY
 }
 
+enum OrganizationStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_APPROVAL
+  SUSPENDED
+}
+
+enum DoctorVerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  NEEDS_REVIEW
+}
+
 // User Management
 model User {
   id        String   @id @default(cuid())
@@ -157,6 +178,18 @@ model User {
   patientProfile    PatientProfile?
   doctorProfile     DoctorProfile?
   pharmacistProfile PharmacistProfile?
+  mltProfile        MLTProfile?
+  
+  // Organization affiliations
+  hospitalId        String?
+  pharmacyId        String?
+  laboratoryId      String?
+  insuranceId       String?
+  
+  hospital          Hospital?     @relation("HospitalUsers", fields: [hospitalId], references: [id])
+  pharmacy          Pharmacy?     @relation("PharmacyUsers", fields: [pharmacyId], references: [id])
+  laboratory        Laboratory?   @relation("LaboratoryUsers", fields: [laboratoryId], references: [id])
+  insuranceCompany  InsuranceCompany? @relation("InsuranceUsers", fields: [insuranceId], references: [id])
 
   // Common relationships
   sessions          Session[]
@@ -237,6 +270,11 @@ model DoctorProfile {
   rating              Float?
   reviewCount         Int      @default(0)
   isVerified          Boolean  @default(false)
+  verificationStatus  DoctorVerificationStatus @default(PENDING)
+  verificationDocuments String[]
+  rejectionReason     String?
+  approvedAt          DateTime?
+  approvedBy          String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
   
@@ -259,6 +297,138 @@ model PharmacistProfile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("pharmacist_profiles")
+}
+
+model MLTProfile {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  licenseNumber       String   @unique
+  certifications      String[]
+  specializations     String[]
+  workingHours        Json?
+  isVerified          Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("mlt_profiles")
+}
+
+// Organizational Models
+model Hospital {
+  id              String             @id @default(cuid())
+  name            String
+  registrationNumber String          @unique
+  address         String
+  phone           String?
+  email           String?
+  website         String?
+  description     String?
+  specialties     String[]
+  bedCount        Int?
+  emergencyServices Boolean          @default(false)
+  status          OrganizationStatus @default(PENDING_APPROVAL)
+  licenseNumber   String             @unique
+  licenseExpiry   DateTime?
+  accreditation   String?
+  contactPerson   String?
+  contactPhone    String?
+  contactEmail    String?
+  adminUserId     String?            // Hospital admin user
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  // Relationships
+  users           User[]             @relation("HospitalUsers")
+  ownedPharmacies Pharmacy[]         @relation("HospitalOwnedPharmacies")
+  ownedLabs       Laboratory[]       @relation("HospitalOwnedLabs")
+  
+  @@map("hospitals")
+}
+
+model Pharmacy {
+  id              String             @id @default(cuid())
+  name            String
+  registrationNumber String          @unique
+  address         String
+  phone           String?
+  email           String?
+  website         String?
+  description     String?
+  operatingHours  Json?
+  status          OrganizationStatus @default(PENDING_APPROVAL)
+  licenseNumber   String             @unique
+  licenseExpiry   DateTime?
+  contactPerson   String?
+  contactPhone    String?
+  contactEmail    String?
+  adminUserId     String?            // Pharmacy admin user
+  hospitalId      String?            // If owned by hospital
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  // Relationships
+  users           User[]             @relation("PharmacyUsers")
+  hospital        Hospital?          @relation("HospitalOwnedPharmacies", fields: [hospitalId], references: [id])
+  
+  @@map("pharmacies")
+}
+
+model Laboratory {
+  id              String             @id @default(cuid())
+  name            String
+  registrationNumber String          @unique
+  address         String
+  phone           String?
+  email           String?
+  website         String?
+  description     String?
+  testTypes       String[]
+  operatingHours  Json?
+  status          OrganizationStatus @default(PENDING_APPROVAL)
+  licenseNumber   String             @unique
+  licenseExpiry   DateTime?
+  accreditation   String?
+  contactPerson   String?
+  contactPhone    String?
+  contactEmail    String?
+  adminUserId     String?            // Lab admin user
+  hospitalId      String?            // If owned by hospital
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  // Relationships
+  users           User[]             @relation("LaboratoryUsers")
+  hospital        Hospital?          @relation("HospitalOwnedLabs", fields: [hospitalId], references: [id])
+  
+  @@map("laboratories")
+}
+
+model InsuranceCompany {
+  id              String             @id @default(cuid())
+  name            String
+  registrationNumber String          @unique
+  address         String
+  phone           String?
+  email           String?
+  website         String?
+  description     String?
+  coverageTypes   String[]
+  status          OrganizationStatus @default(PENDING_APPROVAL)
+  licenseNumber   String             @unique
+  licenseExpiry   DateTime?
+  contactPerson   String?
+  contactPhone    String?
+  contactEmail    String?
+  adminUserId     String?            // Insurance admin user
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  // Relationships
+  users           User[]             @relation("InsuranceUsers")
+  
+  @@map("insurance_companies")
 }
 
 // Appointments

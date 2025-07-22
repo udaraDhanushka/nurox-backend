@@ -11,6 +11,7 @@ const rateLimit = require('express-rate-limit');
 // Import routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
+const patientRoutes = require('./routes/patientRoutes');
 const prescriptionRoutes = require('./routes/prescriptionRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
 const labResultRoutes = require('./routes/labResultRoutes');
@@ -22,6 +23,7 @@ const ocrRoutes = require('./routes/ocrRoutes');
 const medicineRoutes = require('./routes/medicineRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
+const organizationRoutes = require('./routes/organizationRoutes');
 
 // Import middleware
 const errorHandler = require('./middleware/errorHandler');
@@ -32,7 +34,7 @@ const app = express();
 // Security middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ["http://localhost:8081"],
+  origin: process.env.CORS_ORIGIN?.split(',') || ["http://localhost:8080"],
   credentials: true
 }));
 
@@ -58,19 +60,37 @@ app.use(morgan('combined', {
   }
 }));
 
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
+// Health check endpoint with database connectivity
+app.get('/health', async (req, res) => {
+  const health = {
     status: 'OK',
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
-    environment: process.env.NODE_ENV || 'development'
-  });
+    environment: process.env.NODE_ENV || 'development',
+    database: 'unknown'
+  };
+
+  try {
+    // Quick database connectivity check
+    const { PrismaClient } = require('@prisma/client');
+    const prisma = new PrismaClient();
+    await prisma.$queryRaw`SELECT 1`;
+    await prisma.$disconnect();
+    health.database = 'connected';
+  } catch (error) {
+    health.database = 'disconnected';
+    health.status = 'DEGRADED';
+    health.error = error.message;
+  }
+
+  const statusCode = health.status === 'OK' ? 200 : 503;
+  res.status(statusCode).json(health);
 });
 
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/patients', patientRoutes);
 app.use('/api/prescriptions', prescriptionRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/lab-results', labResultRoutes);
@@ -82,6 +102,7 @@ app.use('/api/ocr', ocrRoutes);
 app.use('/api/medicines', medicineRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/organizations', organizationRoutes);
 
 // API documentation route
 app.get('/api/docs', (req, res) => {
@@ -92,6 +113,7 @@ app.get('/api/docs', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       users: '/api/users',
+      patients: '/api/patients',
       prescriptions: '/api/prescriptions',
       appointments: '/api/appointments',
       labResults: '/api/lab-results',

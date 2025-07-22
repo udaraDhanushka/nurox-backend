@@ -44,9 +44,20 @@ const schemas = {
     password: Joi.string().min(8).required(),
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
-    role: Joi.string().valid('PATIENT', 'DOCTOR', 'PHARMACIST').required(),
+    role: Joi.string().valid(
+      'PATIENT', 'DOCTOR', 'PHARMACIST', 'MLT', 
+      'HOSPITAL_ADMIN', 'PHARMACY_ADMIN', 'LAB_ADMIN', 
+      'INSURANCE_ADMIN', 'INSURANCE_AGENT', 'SUPER_ADMIN'
+    ).required(),
     phone: Joi.string().optional(),
-    dateOfBirth: Joi.date().optional()
+    dateOfBirth: Joi.date().optional(),
+    hospitalId: Joi.string().optional(),
+    pharmacyId: Joi.string().optional(),
+    laboratoryId: Joi.string().optional(),
+    insuranceId: Joi.string().optional(),
+    specialization: Joi.string().optional(),
+    certifications: Joi.array().items(Joi.string()).optional(),
+    specializations: Joi.array().items(Joi.string()).optional()
   }),
 
   login: Joi.object({
@@ -231,8 +242,24 @@ const schemas = {
   }))
 };
 
+// Express-validator middleware for validation errors
+const { validationResult } = require('express-validator');
+
+const validateRequest = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({
+      success: false,
+      message: 'Validation failed',
+      errors: errors.array()
+    });
+  }
+  next();
+};
+
 module.exports = {
   validate,
   validateQuery,
+  validateRequest,
   schemas
 };

@@ -27,7 +27,12 @@ const authMiddleware = async (req, res, next) => {
             include: {
               patientProfile: true,
               doctorProfile: true,
-              pharmacistProfile: true
+              pharmacistProfile: true,
+              mltProfile: true,
+              hospital: true,
+              pharmacy: true,
+              laboratory: true,
+              insuranceCompany: true
             }
           }
         }
@@ -49,6 +54,10 @@ const authMiddleware = async (req, res, next) => {
 
       req.user = session.user;
       req.sessionId = session.id;
+      
+      // Set user role header for Next.js middleware
+      res.setHeader('x-user-role', session.user.role);
+      
       next();
     } catch (jwtError) {
       return res.status(401).json({
@@ -98,7 +107,7 @@ const optionalAuth = async (req, res, next) => {
     const token = authHeader.substring(7);
     
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      jwt.verify(token, process.env.JWT_SECRET);
       
       const session = await prisma.session.findUnique({
         where: { token },
@@ -107,7 +116,12 @@ const optionalAuth = async (req, res, next) => {
             include: {
               patientProfile: true,
               doctorProfile: true,
-              pharmacistProfile: true
+              pharmacistProfile: true,
+              mltProfile: true,
+              hospital: true,
+              pharmacy: true,
+              laboratory: true,
+              insuranceCompany: true
             }
           }
         }

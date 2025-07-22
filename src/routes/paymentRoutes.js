@@ -4,14 +4,14 @@ const { authMiddleware } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
-// Stripe webhook (no auth required)
-router.post('/webhook', express.raw({ type: 'application/json' }), paymentController.handleStripeWebhook);
+// PayHere webhook (no auth required)
+router.post('/payhere-webhook', express.urlencoded({ extended: true }), paymentController.handlePayHereWebhook);
 
 // Apply auth middleware to all other routes
 router.use(authMiddleware);
 
 // Payment operations
-router.post('/intent', paymentController.createPaymentIntent);
+router.post('/payhere/create', paymentController.createPayHerePayment);
 router.post('/confirm', paymentController.confirmPayment);
 router.get('/', paymentController.getPayments);
 router.get('/analytics', paymentController.getPaymentAnalytics);

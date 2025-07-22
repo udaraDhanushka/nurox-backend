@@ -345,6 +345,71 @@ const userController = {
         message: 'Failed to update language preference'
       });
     }
+  },
+
+  // Get patient profile by ID (for doctors/pharmacists)
+  getPatientProfile: async (req, res) => {
+    try {
+      const { userId } = req.params;
+
+      // Verify requester has appropriate access
+      if (req.user.role !== 'DOCTOR' && req.user.role !== 'PHARMACIST' && req.user.role !== 'SUPER_ADMIN') {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. Only doctors, pharmacists, and admins can access patient profiles.'
+        });
+      }
+
+      const patient = await prisma.user.findUnique({
+        where: { 
+          id: userId,
+          role: 'PATIENT',
+          isActive: true
+        },
+        include: {
+          patientProfile: true
+        }
+      });
+
+      if (!patient) {
+        return res.status(404).json({
+          success: false,
+          message: 'Patient not found'
+        });
+      }
+
+      // Calculate age if dateOfBirth exists
+      let age = null;
+      if (patient.dateOfBirth) {
+        const birthDate = new Date(patient.dateOfBirth);
+        const today = new Date();
+        age = today.getFullYear() - birthDate.getFullYear();
+        const monthDiff = today.getMonth() - birthDate.getMonth();
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+          age--;
+        }
+      }
+
+      const { password: _, ...userWithoutPassword } = patient;
+      const responseData = {
+        ...userWithoutPassword,
+        age,
+        name: `${patient.firstName} ${patient.lastName}`
+      };
+
+      logger.info(`Patient profile accessed: ${userId} by ${req.user.role}: ${req.user.email}`);
+
+      res.json({
+        success: true,
+        data: responseData
+      });
+    } catch (error) {
+      logger.error('Get patient profile error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Failed to get patient profile'
+      });
+    }
   }
 };
 

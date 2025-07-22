@@ -49,18 +49,39 @@ const authController = {
           create: {}
         };
       } else if (role === 'DOCTOR') {
+        const { hospitalId, specialization } = req.body;
         userData.doctorProfile = {
           create: {
-            specialization: 'General Practice', // Default specialization
-            licenseNumber: `DOC${Date.now()}` // Temporary license number
+            specialization: specialization || 'General Practice',
+            licenseNumber: `DOC${Date.now()}`,
+            verificationStatus: 'PENDING'
           }
         };
+        if (hospitalId) {
+          userData.hospitalId = hospitalId;
+        }
       } else if (role === 'PHARMACIST') {
+        const { pharmacyId } = req.body;
         userData.pharmacistProfile = {
           create: {
-            licenseNumber: `PHARM${Date.now()}` // Temporary license number
+            licenseNumber: `PHARM${Date.now()}`
           }
         };
+        if (pharmacyId) {
+          userData.pharmacyId = pharmacyId;
+        }
+      } else if (role === 'MLT') {
+        const { laboratoryId, certifications, specializations } = req.body;
+        userData.mltProfile = {
+          create: {
+            licenseNumber: `MLT${Date.now()}`,
+            certifications: certifications || [],
+            specializations: specializations || []
+          }
+        };
+        if (laboratoryId) {
+          userData.laboratoryId = laboratoryId;
+        }
       }
 
       const user = await prisma.user.create({
@@ -68,7 +89,12 @@ const authController = {
         include: {
           patientProfile: true,
           doctorProfile: true,
-          pharmacistProfile: true
+          pharmacistProfile: true,
+          mltProfile: true,
+          hospital: true,
+          pharmacy: true,
+          laboratory: true,
+          insuranceCompany: true
         }
       });
 
@@ -102,6 +128,7 @@ const authController = {
   // Login user
   login: async (req, res) => {
     try {
+      console.log('Login request received:', { email: req.body.email, hasPassword: !!req.body.password });
       const { email, password } = req.body;
 
       // Find user with role-specific profiles
@@ -110,11 +137,17 @@ const authController = {
         include: {
           patientProfile: true,
           doctorProfile: true,
-          pharmacistProfile: true
+          pharmacistProfile: true,
+          mltProfile: true,
+          hospital: true,
+          pharmacy: true,
+          laboratory: true,
+          insuranceCompany: true
         }
       });
 
       if (!user) {
+        console.log('User not found:', email);
         return res.status(401).json({
           success: false,
           message: 'Invalid email or password'
@@ -122,6 +155,7 @@ const authController = {
       }
 
       if (!user.isActive) {
+        console.log('User account is disabled:', email);
         return res.status(401).json({
           success: false,
           message: 'Account is disabled'
@@ -132,6 +166,7 @@ const authController = {
       const isPasswordValid = await bcrypt.compare(password, user.password);
       
       if (!isPasswordValid) {
+        console.log('Invalid password for user:', email);
         return res.status(401).json({
           success: false,
           message: 'Invalid email or password'
@@ -158,9 +193,31 @@ const authController = {
       });
     } catch (error) {
       logger.error('Login error:', error);
-      res.status(500).json({
+      console.error('Login error details:', error.message, error.stack);
+      
+      // Provide specific error messages based on the error type
+      let errorMessage = 'Login failed';
+      let statusCode = 500;
+      
+      if (error.code === 'P1001') {
+        // Database connection error
+        errorMessage = 'Database connection unavailable. Please try again later.';
+        statusCode = 503;
+      } else if (error.code === 'P2002') {
+        // Unique constraint violation
+        errorMessage = 'Database constraint error';
+        statusCode = 400;
+      } else if (error.message && error.message.includes('database')) {
+        errorMessage = 'Database service unavailable. Please try again later.';
+        statusCode = 503;
+      } else if (error.message && error.message.includes('timeout')) {
+        errorMessage = 'Request timeout. Please try again.';
+        statusCode = 408;
+      }
+      
+      res.status(statusCode).json({
         success: false,
-        message: 'Login failed'
+        message: errorMessage
       });
     }
   },
@@ -222,16 +279,24 @@ const authController = {
         });
       }
 
-      const tokens = await refreshAccessToken(refreshToken);
+      try {
+        const tokens = await refreshAccessToken(refreshToken);
 
-      res.json({
-        success: true,
-        message: 'Token refreshed successfully',
-        data: {
-          accessToken: tokens.accessToken,
-          expiresAt: tokens.accessTokenExpiry
-        }
-      });
+        res.json({
+          success: true,
+          message: 'Token refreshed successfully',
+          data: {
+            accessToken: tokens.accessToken,
+            expiresAt: tokens.accessTokenExpiry
+          }
+        });
+      } catch (refreshError) {
+        logger.error('Token refresh failed:', refreshError);
+        res.status(401).json({
+          success: false,
+          message: 'Invalid or expired refresh token'
+        });
+      }
     } catch (error) {
       logger.error('Token refresh error:', error);
       res.status(401).json({
@@ -249,7 +314,12 @@ const authController = {
         include: {
           patientProfile: true,
           doctorProfile: true,
-          pharmacistProfile: true
+          pharmacistProfile: true,
+          mltProfile: true,
+          hospital: true,
+          pharmacy: true,
+          laboratory: true,
+          insuranceCompany: true
         }
       });
 

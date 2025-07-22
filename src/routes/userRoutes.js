@@ -19,6 +19,9 @@ router.put('/patient-profile', userController.updatePatientProfile);
 router.put('/doctor-profile', userController.updateDoctorProfile);
 router.put('/pharmacist-profile', userController.updatePharmacistProfile);
 
+// Patient profile access routes for cross-role access
+router.get('/:userId/profile', userController.getPatientProfile);
+
 // Account management
 router.delete('/account', userController.deleteAccount);
 
