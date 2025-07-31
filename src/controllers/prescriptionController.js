@@ -114,28 +114,105 @@ const prescriptionController = {
         limit = 20
       } = req.query;
 
+      // Debug logging
+      logger.info(`getPrescriptions called by user: ${req.user.id}, role: ${req.user.role}, email: ${req.user.email}`);
+      logger.info(`Request query params:`, req.query);
+
       const skip = (page - 1) * limit;
       const where = {};
+
+      // Parse status filter first
+      let statusFilter = null;
+      if (status) {
+        // Decode URL-encoded status parameter
+        const decodedStatus = decodeURIComponent(status);
+        logger.info(`Status filter: ${decodedStatus}`);
+        
+        if (decodedStatus.includes(',')) {
+          // Multiple status values
+          const statusArray = decodedStatus.split(',').map(s => s.trim());
+          statusFilter = { in: statusArray };
+        } else {
+          // Single status value
+          statusFilter = decodedStatus;
+        }
+      }
 
       // Filter by user role
       if (req.user.role === 'PATIENT') {
         where.patientId = req.user.id;
+        logger.info(`Patient filter applied: patientId = ${req.user.id}`);
+        
+        // Apply status filter for patients
+        if (statusFilter) {
+          where.status = statusFilter;
+        }
       } else if (req.user.role === 'DOCTOR') {
         where.doctorId = req.user.id;
+        logger.info(`Doctor filter applied: doctorId = ${req.user.id}`);
+        
+        // Apply status filter for doctors
+        if (statusFilter) {
+          where.status = statusFilter;
+        }
       } else if (req.user.role === 'PHARMACIST') {
-        // Pharmacists can see prescriptions assigned to them
-        where.pharmacistId = req.user.id;
-      }
+        // FIXED: Pharmacists should see all prescriptions that are NOT DISPENSED yet
+        // They should see prescriptions that are either:
+        // 1. Assigned to them (pharmacistId = their ID), OR
+        // 2. Not yet assigned to any pharmacist and ready for processing
+        
+        const basePharmacistFilter = [
+          { pharmacistId: req.user.id }, // Prescriptions assigned to this pharmacist
+          { 
+            AND: [
+              { pharmacistId: null }, // Not yet assigned to any pharmacist
+              { 
+                status: { 
+                  in: ['PENDING', 'PROCESSING', 'READY'] // Only show prescriptions that need processing
+                } 
+              }
+            ]
+          }
+        ];
 
-      // Apply additional filters
-      if (status) where.status = status;
-      if (patientId && req.user.role === 'DOCTOR') where.patientId = patientId;
-      if (doctorId && req.user.role === 'PATIENT') where.doctorId = doctorId;
+        // If status filter is provided, combine it with pharmacist logic
+        if (statusFilter) {
+          where.OR = [
+            { 
+              AND: [
+                { pharmacistId: req.user.id },
+                { status: statusFilter }
+              ]
+            },
+            { 
+              AND: [
+                { pharmacistId: null },
+                { status: statusFilter }
+              ]
+            }
+          ];
+        } else {
+          where.OR = basePharmacistFilter;
+        }
+        
+        logger.info(`Pharmacist filter applied: userId = ${req.user.id}, filter:`, where.OR);
+      }
+      if (patientId && req.user.role === 'DOCTOR') {
+        where.patientId = patientId;
+        logger.info(`Additional patient filter: patientId = ${patientId}`);
+      }
+      if (doctorId && req.user.role === 'PATIENT') {
+        where.doctorId = doctorId;
+        logger.info(`Additional doctor filter: doctorId = ${doctorId}`);
+      }
       if (startDate || endDate) {
         where.issuedDate = {};
         if (startDate) where.issuedDate.gte = new Date(startDate);
         if (endDate) where.issuedDate.lte = new Date(endDate);
+        logger.info(`Date filter applied: ${JSON.stringify(where.issuedDate)}`);
       }
+
+      logger.info(`Final where clause:`, JSON.stringify(where, null, 2));
 
       const [prescriptions, total] = await Promise.all([
         prisma.prescription.findMany({
@@ -180,6 +257,8 @@ const prescriptionController = {
         prisma.prescription.count({ where })
       ]);
 
+      logger.info(`Query results: found ${prescriptions.length} prescriptions out of ${total} total`);
+
       res.json({
         success: true,
         data: {
@@ -194,6 +273,7 @@ const prescriptionController = {
       });
     } catch (error) {
       logger.error('Get prescriptions error:', error);
+      logger.error('Error stack:', error.stack);
       res.status(500).json({
         success: false,
         message: 'Failed to get prescriptions'

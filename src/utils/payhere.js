@@ -39,21 +39,31 @@ class PayHereService {
       const formattedAmount = parseFloat(amount).toFixed(2);
       const formattedStartupFee = startupFee ? parseFloat(startupFee).toFixed(2) : '';
 
+      // FIXED: Hash the merchant secret first according to PayHere specification
+      const hashedSecret = crypto.createHash('md5').update(this.merchantSecret).digest('hex').toUpperCase();
+      
       // Create hash string according to PayHere documentation
       let hashString = '';
       
       if (recurrence && duration) {
         // For recurring payments
-        hashString = `${this.merchantId}${orderId}${formattedAmount}${currency}${recurrence}${duration}${formattedStartupFee}${this.merchantSecret}`;
+        hashString = `${this.merchantId}${orderId}${formattedAmount}${currency}${recurrence}${duration}${formattedStartupFee}${hashedSecret}`;
       } else {
         // For one-time payments
-        hashString = `${this.merchantId}${orderId}${formattedAmount}${currency}${this.merchantSecret}`;
+        hashString = `${this.merchantId}${orderId}${formattedAmount}${currency}${hashedSecret}`;
       }
 
       // Generate MD5 hash and convert to uppercase
       const hash = crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
       
-      logger.info(`PayHere hash generated for order: ${orderId}`);
+      logger.info(`PayHere hash generated for order: ${orderId}`, {
+        merchantId: this.merchantId,
+        orderId,
+        formattedAmount,
+        currency,
+        hashedSecretPrefix: hashedSecret.substring(0, 8) + '...',
+        finalHash: hash
+      });
       return hash;
     } catch (error) {
       logger.error('PayHere hash generation error:', error);
@@ -78,8 +88,11 @@ class PayHereService {
         md5sig
       } = notificationData;
 
+      // FIXED: Hash the merchant secret first for webhook verification
+      const hashedSecret = crypto.createHash('md5').update(this.merchantSecret).digest('hex').toUpperCase();
+      
       // Create verification hash string
-      const hashString = `${merchant_id}${order_id}${payhere_amount}${payhere_currency}${status_code}${this.merchantSecret}`;
+      const hashString = `${merchant_id}${order_id}${payhere_amount}${payhere_currency}${status_code}${hashedSecret}`;
       const calculatedHash = crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
 
       const isValid = calculatedHash === md5sig;
@@ -87,7 +100,16 @@ class PayHereService {
       if (isValid) {
         logger.info(`PayHere notification hash verified for order: ${order_id}, payment: ${payment_id}`);
       } else {
-        logger.warn(`PayHere notification hash verification failed for order: ${order_id}`);
+        logger.warn(`PayHere notification hash verification failed for order: ${order_id}`, {
+          merchant_id,
+          order_id,
+          payhere_amount,
+          payhere_currency,
+          status_code,
+          hashedSecretPrefix: hashedSecret.substring(0, 8) + '...',
+          calculatedHash,
+          receivedHash: md5sig
+        });
       }
 
       return isValid;
@@ -151,10 +173,10 @@ class PayHereService {
 
       // Add recurring payment fields if applicable
       if (recurrence && duration) {
-        formData.recurrence = recurrence;
-        formData.duration = duration;
+        formData['recurrence'] = recurrence;
+        formData['duration'] = duration;
         if (startupFee > 0) {
-          formData.startup_fee = parseFloat(startupFee).toFixed(2);
+          formData['startup_fee'] = parseFloat(startupFee).toFixed(2);
         }
       }
 
