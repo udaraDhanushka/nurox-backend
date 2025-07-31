@@ -5,6 +5,7 @@ A comprehensive healthcare management backend API built with Node.js, Express, P
 ## Features
 
 ### 🏥 Core Healthcare Features
+
 - **User Management**: Multi-role authentication (Patient, Doctor, Pharmacist, Admin)
 - **Appointment System**: Booking, scheduling, and management
 - **Prescription Management**: Digital prescriptions with OCR support
@@ -13,6 +14,7 @@ A comprehensive healthcare management backend API built with Node.js, Express, P
 - **Pharmacy Integration**: Inventory management and prescription dispensing
 
 ### 🔧 Technical Features
+
 - **Real-time Communication**: Socket.IO for live updates
 - **File Upload & Processing**: Image handling with OCR capabilities
 - **Payment Processing**: Stripe integration for secure payments
@@ -36,6 +38,7 @@ A comprehensive healthcare management backend API built with Node.js, Express, P
 ## Quick Start
 
 ### Prerequisites
+
 - Node.js (v18+ recommended)
 - PostgreSQL database
 - Stripe account (for payments)
@@ -44,34 +47,38 @@ A comprehensive healthcare management backend API built with Node.js, Express, P
 ### Installation
 
 1. **Clone and install dependencies**
+
    ```bash
    cd nurox-backend
    npm install
    ```
 
 2. **Environment Setup**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
    ```
 
 3. **Database Setup**
+
    ```bash
    # Generate Prisma client
    npm run prisma:generate
-   
+
    # Run database migrations
    npm run prisma:migrate
-   
+
    # (Optional) Seed database
    npm run prisma:seed
    ```
 
 4. **Start the server**
+
    ```bash
    # Development
    npm run dev
-   
+
    # Production
    npm start
    ```
@@ -112,6 +119,7 @@ See `.env.example` for all available configuration options.
 ## API Endpoints
 
 ### Authentication
+
 ```
 POST /api/auth/register     - Register new user
 POST /api/auth/login        - User login
@@ -121,6 +129,7 @@ POST /api/auth/refresh-token - Refresh access token
 ```
 
 ### Users
+
 ```
 GET  /api/users/profile            - Get user profile
 PUT  /api/users/profile            - Update profile
@@ -130,6 +139,7 @@ PUT  /api/users/pharmacist-profile - Update pharmacist profile
 ```
 
 ### Appointments
+
 ```
 GET  /api/appointments             - Get appointments
 POST /api/appointments             - Create appointment
@@ -140,6 +150,7 @@ GET  /api/appointments/doctors/list - Get available doctors
 ```
 
 ### Prescriptions
+
 ```
 GET  /api/prescriptions            - Get prescriptions
 POST /api/prescriptions            - Create prescription
@@ -149,6 +160,7 @@ POST /api/prescriptions/ocr/process - Process OCR prescription
 ```
 
 ### Medicines
+
 ```
 GET  /api/medicines                - Get medicines
 POST /api/medicines                - Add medicine
@@ -157,6 +169,7 @@ POST /api/medicines/interactions/check - Check drug interactions
 ```
 
 ### Lab Results
+
 ```
 GET  /api/lab-results              - Get lab results
 POST /api/lab-results              - Create lab result
@@ -166,6 +179,7 @@ GET  /api/lab-results/available-tests - Get available tests
 ```
 
 ### Pharmacy
+
 ```
 GET  /api/pharmacies/nearby        - Get nearby pharmacies
 GET  /api/pharmacies/inventory     - Get pharmacy inventory
@@ -174,6 +188,7 @@ GET  /api/pharmacies/alerts/low-stock - Get low stock alerts
 ```
 
 ### Files
+
 ```
 POST /api/files/upload             - Upload file
 GET  /api/files                    - Get user files
@@ -182,6 +197,7 @@ GET  /api/files/:id/thumbnail      - Get image thumbnail
 ```
 
 ### Notifications
+
 ```
 GET  /api/notifications            - Get notifications
 POST /api/notifications            - Create notification
@@ -190,6 +206,7 @@ PUT  /api/notifications/read-all   - Mark all as read
 ```
 
 ### Chat
+
 ```
 POST /api/chat/send                - Send message
 GET  /api/chat/conversations       - Get conversations
@@ -198,6 +215,7 @@ GET  /api/chat/participants        - Get chat participants
 ```
 
 ### Payments
+
 ```
 POST /api/payments/intent          - Create payment intent
 POST /api/payments/confirm         - Confirm payment
@@ -207,6 +225,7 @@ POST /api/payments/:id/refund      - Request refund
 ```
 
 ### Analytics
+
 ```
 GET  /api/analytics/dashboard      - Dashboard analytics
 GET  /api/analytics/health         - Health metrics (patients)
@@ -216,6 +235,7 @@ GET  /api/analytics/system         - System analytics (admin)
 ```
 
 ### OCR
+
 ```
 POST /api/ocr/process              - Process prescription image
 POST /api/ocr/validate             - Validate OCR results
@@ -346,6 +366,7 @@ CMD ["npm", "start"]
 ## Support
 
 For support and questions:
+
 - Check the API documentation at `/api/docs`
 - Review the error responses for debugging
 - Check the logs for detailed error information

@@ -22,8 +22,8 @@ class NotificationService {
           title: data.title,
           message: data.message,
           data: data.data || {},
-          scheduledFor: data.scheduledFor ? new Date(data.scheduledFor) : null
-        }
+          scheduledFor: data.scheduledFor ? new Date(data.scheduledFor) : null,
+        },
       });
 
       // Send real-time notification via Socket.IO
@@ -34,11 +34,13 @@ class NotificationService {
           title: notification.title,
           message: notification.message,
           data: notification.data,
-          createdAt: notification.createdAt
+          createdAt: notification.createdAt,
         });
       }
 
-      logger.info(`Notification created: ${notification.id} for user ${data.userId}`);
+      logger.info(
+        `Notification created: ${notification.id} for user ${data.userId}`
+      );
       return notification;
     } catch (error) {
       logger.error('Create notification error:', error);
@@ -57,23 +59,28 @@ class NotificationService {
         data: {
           appointmentId: appointment.id,
           doctorName: `${appointment.doctor.firstName} ${appointment.doctor.lastName}`,
-          appointmentDate: appointment.appointmentDate
-        }
+          appointmentDate: appointment.appointmentDate,
+        },
       });
 
       // Send email notification
       await emailService.sendAppointmentReminder(appointment);
 
-      logger.info(`Appointment reminder sent for appointment: ${appointment.id}`);
+      logger.info(
+        `Appointment reminder sent for appointment: ${appointment.id}`
+      );
     } catch (error) {
       logger.error('Send appointment reminder error:', error);
     }
   }
 
-  async sendPrescriptionNotification(prescription, type = 'PRESCRIPTION_READY') {
+  async sendPrescriptionNotification(
+    prescription,
+    type = 'PRESCRIPTION_READY'
+  ) {
     try {
       let title, message;
-      
+
       switch (type) {
         case 'PRESCRIPTION_READY':
           title = 'Prescription Ready';
@@ -101,8 +108,8 @@ class NotificationService {
         data: {
           prescriptionId: prescription.id,
           prescriptionNumber: prescription.prescriptionNumber,
-          doctorName: `${prescription.doctor.firstName} ${prescription.doctor.lastName}`
-        }
+          doctorName: `${prescription.doctor.firstName} ${prescription.doctor.lastName}`,
+        },
       });
 
       // Send email notification for ready prescriptions
@@ -110,7 +117,9 @@ class NotificationService {
         await emailService.sendPrescriptionReady(prescription);
       }
 
-      logger.info(`Prescription notification sent: ${type} for prescription ${prescription.id}`);
+      logger.info(
+        `Prescription notification sent: ${type} for prescription ${prescription.id}`
+      );
     } catch (error) {
       logger.error('Send prescription notification error:', error);
     }
@@ -128,8 +137,8 @@ class NotificationService {
           labResultId: labResult.id,
           testName: labResult.testName,
           labName: labResult.labName,
-          isAbnormal: labResult.isAbnormal
-        }
+          isAbnormal: labResult.isAbnormal,
+        },
       });
 
       // Send email notification
@@ -144,7 +153,7 @@ class NotificationService {
   async sendPaymentNotification(payment, type = 'PAYMENT_DUE') {
     try {
       let title, message;
-      
+
       switch (type) {
         case 'PAYMENT_DUE':
           title = 'Payment Due';
@@ -172,11 +181,13 @@ class NotificationService {
         data: {
           paymentId: payment.id,
           amount: payment.amount,
-          status: payment.status
-        }
+          status: payment.status,
+        },
       });
 
-      logger.info(`Payment notification sent: ${type} for payment ${payment.id}`);
+      logger.info(
+        `Payment notification sent: ${type} for payment ${payment.id}`
+      );
     } catch (error) {
       logger.error('Send payment notification error:', error);
     }
@@ -193,8 +204,8 @@ class NotificationService {
         data: {
           chatMessageId: chatMessage.id,
           senderId: chatMessage.senderId,
-          senderName: `${chatMessage.sender.firstName} ${chatMessage.sender.lastName}`
-        }
+          senderName: `${chatMessage.sender.firstName} ${chatMessage.sender.lastName}`,
+        },
       });
 
       logger.info(`Chat notification sent for message: ${chatMessage.id}`);
@@ -207,24 +218,24 @@ class NotificationService {
     try {
       // Create notifications for all users
       const notifications = await prisma.notification.createMany({
-        data: userIds.map(userId => ({
+        data: userIds.map((userId) => ({
           userId,
           type: notificationData.type,
           title: notificationData.title,
           message: notificationData.message,
-          data: notificationData.data || {}
-        }))
+          data: notificationData.data || {},
+        })),
       });
 
       // Send real-time notifications via Socket.IO
       if (this.io) {
-        userIds.forEach(userId => {
+        userIds.forEach((userId) => {
           this.io.to(`user_${userId}`).emit('new_notification', {
             type: notificationData.type,
             title: notificationData.title,
             message: notificationData.message,
             data: notificationData.data,
-            createdAt: new Date()
+            createdAt: new Date(),
           });
         });
       }
@@ -251,20 +262,20 @@ class NotificationService {
         where: {
           appointmentDate: {
             gte: tomorrow,
-            lt: dayAfterTomorrow
+            lt: dayAfterTomorrow,
           },
           status: {
-            in: ['PENDING', 'CONFIRMED']
-          }
+            in: ['PENDING', 'CONFIRMED'],
+          },
         },
         include: {
           patient: true,
           doctor: {
             include: {
-              doctorProfile: true
-            }
-          }
-        }
+              doctorProfile: true,
+            },
+          },
+        },
       });
 
       // Send reminders for each appointment
@@ -286,10 +297,10 @@ class NotificationService {
       const result = await prisma.notification.deleteMany({
         where: {
           createdAt: {
-            lt: cutoffDate
+            lt: cutoffDate,
           },
-          isRead: true
-        }
+          isRead: true,
+        },
       });
 
       logger.info(`Cleaned up ${result.count} old notifications`);

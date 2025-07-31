@@ -33,18 +33,20 @@ const app = express();
 
 // Security middleware
 app.use(helmet());
-app.use(cors({
-  origin: process.env.CORS_ORIGIN?.split(',') || ["http://localhost:8080"],
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:8080'],
+    credentials: true,
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
   message: {
-    error: 'Too many requests from this IP, please try again later.'
-  }
+    error: 'Too many requests from this IP, please try again later.',
+  },
 });
 app.use('/api/', limiter);
 
@@ -54,11 +56,13 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging middleware
-app.use(morgan('combined', {
-  stream: {
-    write: (message) => logger.info(message.trim())
-  }
-}));
+app.use(
+  morgan('combined', {
+    stream: {
+      write: (message) => logger.info(message.trim()),
+    },
+  })
+);
 
 // Health check endpoint with database connectivity
 app.get('/health', async (req, res) => {
@@ -67,7 +71,7 @@ app.get('/health', async (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     environment: process.env.NODE_ENV || 'development',
-    database: 'unknown'
+    database: 'unknown',
   };
 
   try {
@@ -124,8 +128,8 @@ app.get('/api/docs', (req, res) => {
       ocr: '/api/ocr',
       medicines: '/api/medicines',
       payments: '/api/payments',
-      analytics: '/api/analytics'
-    }
+      analytics: '/api/analytics',
+    },
   });
 });
 
@@ -133,7 +137,7 @@ app.get('/api/docs', (req, res) => {
 app.use('*', (req, res) => {
   res.status(404).json({
     success: false,
-    message: 'Endpoint not found'
+    message: 'Endpoint not found',
   });
 });
 

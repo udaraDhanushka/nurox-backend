@@ -7,22 +7,17 @@ const chatController = {
   // Send message
   sendMessage: async (req, res) => {
     try {
-      const {
-        receiverId,
-        message,
-        attachments = [],
-        metadata = {}
-      } = req.body;
+      const { receiverId, message, attachments = [], metadata = {} } = req.body;
 
       // Verify receiver exists
       const receiver = await prisma.user.findUnique({
-        where: { id: receiverId }
+        where: { id: receiverId },
       });
 
       if (!receiver) {
         return res.status(404).json({
           success: false,
-          message: 'Receiver not found'
+          message: 'Receiver not found',
         });
       }
 
@@ -32,7 +27,7 @@ const chatController = {
           receiverId,
           message,
           attachments,
-          metadata
+          metadata,
         },
         include: {
           sender: {
@@ -41,10 +36,10 @@ const chatController = {
               firstName: true,
               lastName: true,
               profileImage: true,
-              role: true
-            }
-          }
-        }
+              role: true,
+            },
+          },
+        },
       });
 
       // Send real-time message via Socket.IO
@@ -57,7 +52,7 @@ const chatController = {
           senderImage: req.user.profileImage,
           message: chatMessage.message,
           attachments: chatMessage.attachments,
-          createdAt: chatMessage.createdAt
+          createdAt: chatMessage.createdAt,
         });
       }
 
@@ -70,9 +65,9 @@ const chatController = {
           message: `New message from ${req.user.firstName} ${req.user.lastName}`,
           data: {
             chatMessageId: chatMessage.id,
-            senderId: req.user.id
-          }
-        }
+            senderId: req.user.id,
+          },
+        },
       });
 
       logger.info(`Message sent from ${req.user.email} to ${receiver.email}`);
@@ -80,13 +75,13 @@ const chatController = {
       res.status(201).json({
         success: true,
         message: 'Message sent successfully',
-        data: chatMessage
+        data: chatMessage,
       });
     } catch (error) {
       logger.error('Send message error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to send message'
+        message: 'Failed to send message',
       });
     }
   },
@@ -107,14 +102,14 @@ const chatController = {
           firstName: true,
           lastName: true,
           profileImage: true,
-          role: true
-        }
+          role: true,
+        },
       });
 
       if (!otherUser) {
         return res.status(404).json({
           success: false,
-          message: 'User not found'
+          message: 'User not found',
         });
       }
 
@@ -124,13 +119,13 @@ const chatController = {
             OR: [
               {
                 senderId: req.user.id,
-                receiverId: userId
+                receiverId: userId,
               },
               {
                 senderId: userId,
-                receiverId: req.user.id
-              }
-            ]
+                receiverId: req.user.id,
+              },
+            ],
           },
           include: {
             sender: {
@@ -139,28 +134,28 @@ const chatController = {
                 firstName: true,
                 lastName: true,
                 profileImage: true,
-                role: true
-              }
-            }
+                role: true,
+              },
+            },
           },
           orderBy: { createdAt: 'desc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
         prisma.chatMessage.count({
           where: {
             OR: [
               {
                 senderId: req.user.id,
-                receiverId: userId
+                receiverId: userId,
               },
               {
                 senderId: userId,
-                receiverId: req.user.id
-              }
-            ]
-          }
-        })
+                receiverId: req.user.id,
+              },
+            ],
+          },
+        }),
       ]);
 
       // Mark messages from the other user as read
@@ -168,12 +163,12 @@ const chatController = {
         where: {
           senderId: userId,
           receiverId: req.user.id,
-          isRead: false
+          isRead: false,
         },
         data: {
           isRead: true,
-          readAt: new Date()
-        }
+          readAt: new Date(),
+        },
       });
 
       res.json({
@@ -185,15 +180,15 @@ const chatController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get messages error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get messages'
+        message: 'Failed to get messages',
       });
     }
   },
@@ -231,38 +226,38 @@ const chatController = {
                 lastName: true,
                 profileImage: true,
                 role: true,
-                isActive: true
-              }
+                isActive: true,
+              },
             }),
             prisma.chatMessage.findFirst({
               where: {
                 OR: [
                   {
                     senderId: req.user.id,
-                    receiverId: conv.other_user_id
+                    receiverId: conv.other_user_id,
                   },
                   {
                     senderId: conv.other_user_id,
-                    receiverId: req.user.id
-                  }
-                ]
+                    receiverId: req.user.id,
+                  },
+                ],
               },
-              orderBy: { createdAt: 'desc' }
+              orderBy: { createdAt: 'desc' },
             }),
             prisma.chatMessage.count({
               where: {
                 senderId: conv.other_user_id,
                 receiverId: req.user.id,
-                isRead: false
-              }
-            })
+                isRead: false,
+              },
+            }),
           ]);
 
           return {
             otherUser,
             latestMessage,
             unreadCount,
-            lastMessageTime: conv.last_message_time
+            lastMessageTime: conv.last_message_time,
           };
         })
       );
@@ -281,20 +276,22 @@ const chatController = {
       res.json({
         success: true,
         data: {
-          conversations: conversationsWithDetails.filter(conv => conv.otherUser),
+          conversations: conversationsWithDetails.filter(
+            (conv) => conv.otherUser
+          ),
           pagination: {
             page: parseInt(page),
             limit: parseInt(limit),
             total: parseInt(total[0].count),
-            pages: Math.ceil(parseInt(total[0].count) / limit)
-          }
-        }
+            pages: Math.ceil(parseInt(total[0].count) / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get conversations error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get conversations'
+        message: 'Failed to get conversations',
       });
     }
   },
@@ -305,13 +302,13 @@ const chatController = {
       const { messageId } = req.params;
 
       const message = await prisma.chatMessage.findUnique({
-        where: { id: messageId }
+        where: { id: messageId },
       });
 
       if (!message) {
         return res.status(404).json({
           success: false,
-          message: 'Message not found'
+          message: 'Message not found',
         });
       }
 
@@ -319,7 +316,7 @@ const chatController = {
       if (message.receiverId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -327,19 +324,19 @@ const chatController = {
         where: { id: messageId },
         data: {
           isRead: true,
-          readAt: new Date()
-        }
+          readAt: new Date(),
+        },
       });
 
       res.json({
         success: true,
-        message: 'Message marked as read'
+        message: 'Message marked as read',
       });
     } catch (error) {
       logger.error('Mark message as read error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to mark message as read'
+        message: 'Failed to mark message as read',
       });
     }
   },
@@ -351,7 +348,7 @@ const chatController = {
 
       const where = {
         isActive: true,
-        id: { not: req.user.id } // Exclude current user
+        id: { not: req.user.id }, // Exclude current user
       };
 
       // Filter by role if specified
@@ -369,7 +366,7 @@ const chatController = {
         where.OR = [
           { firstName: { contains: search, mode: 'insensitive' } },
           { lastName: { contains: search, mode: 'insensitive' } },
-          { email: { contains: search, mode: 'insensitive' } }
+          { email: { contains: search, mode: 'insensitive' } },
         ];
       }
 
@@ -385,30 +382,27 @@ const chatController = {
           doctorProfile: {
             select: {
               specialization: true,
-              hospitalAffiliation: true
-            }
+              hospitalAffiliation: true,
+            },
           },
           pharmacistProfile: {
             select: {
-              pharmacyAffiliation: true
-            }
-          }
+              pharmacyAffiliation: true,
+            },
+          },
         },
-        orderBy: [
-          { firstName: 'asc' },
-          { lastName: 'asc' }
-        ]
+        orderBy: [{ firstName: 'asc' }, { lastName: 'asc' }],
       });
 
       res.json({
         success: true,
-        data: participants
+        data: participants,
       });
     } catch (error) {
       logger.error('Get chat participants error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get chat participants'
+        message: 'Failed to get chat participants',
       });
     }
   },
@@ -419,13 +413,13 @@ const chatController = {
       const { messageId } = req.params;
 
       const message = await prisma.chatMessage.findUnique({
-        where: { id: messageId }
+        where: { id: messageId },
       });
 
       if (!message) {
         return res.status(404).json({
           success: false,
-          message: 'Message not found'
+          message: 'Message not found',
         });
       }
 
@@ -433,28 +427,28 @@ const chatController = {
       if (message.senderId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Only the sender can delete this message.'
+          message: 'Access denied. Only the sender can delete this message.',
         });
       }
 
       await prisma.chatMessage.delete({
-        where: { id: messageId }
+        where: { id: messageId },
       });
 
       logger.info(`Message deleted: ${messageId} by ${req.user.email}`);
 
       res.json({
         success: true,
-        message: 'Message deleted successfully'
+        message: 'Message deleted successfully',
       });
     } catch (error) {
       logger.error('Delete message error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete message'
+        message: 'Failed to delete message',
       });
     }
-  }
+  },
 };
 
 module.exports = chatController;

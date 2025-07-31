@@ -17,7 +17,7 @@ const ocrController = {
       if (!imageBase64) {
         return res.status(400).json({
           success: false,
-          message: 'Image data is required'
+          message: 'Image data is required',
         });
       }
 
@@ -38,9 +38,9 @@ const ocrController = {
       // Enhance image if requested
       if (enhanceImage) {
         processedImageBuffer = await sharp(imageBuffer)
-          .resize(2000, null, { 
+          .resize(2000, null, {
             withoutEnlargement: true,
-            fit: 'inside'
+            fit: 'inside',
           })
           .sharpen()
           .normalize()
@@ -53,7 +53,7 @@ const ocrController = {
 
       // Perform OCR
       const ocrResult = await Tesseract.recognize(processedImageBuffer, 'eng', {
-        logger: m => console.log(m)
+        logger: (m) => console.log(m),
       });
 
       // Extract text and confidence
@@ -78,9 +78,9 @@ const ocrController = {
             ocrText: extractedText,
             ocrConfidence: confidence,
             detectedMedicines: detectedMedicines.length,
-            enhancementApplied: enhanceImage
-          }
-        }
+            enhancementApplied: enhanceImage,
+          },
+        },
       });
 
       logger.info(`OCR processing completed for user: ${req.user.email}`);
@@ -94,14 +94,14 @@ const ocrController = {
           confidence,
           detectedMedicines,
           processingTime: ocrResult.data.psm,
-          imageUrl: `/uploads/${filename}`
-        }
+          imageUrl: `/uploads/${filename}`,
+        },
       });
     } catch (error) {
       logger.error('OCR processing error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to process image'
+        message: 'Failed to process image',
       });
     }
   },
@@ -112,20 +112,20 @@ const ocrController = {
       const { documentId, corrections } = req.body;
 
       const document = await prisma.document.findUnique({
-        where: { id: documentId }
+        where: { id: documentId },
       });
 
       if (!document) {
         return res.status(404).json({
           success: false,
-          message: 'Document not found'
+          message: 'Document not found',
         });
       }
 
       if (document.userId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -137,9 +137,9 @@ const ocrController = {
             ...document.metadata,
             corrections,
             validatedAt: new Date().toISOString(),
-            validatedBy: req.user.id
-          }
-        }
+            validatedBy: req.user.id,
+          },
+        },
       });
 
       logger.info(`OCR validation completed for document: ${documentId}`);
@@ -147,13 +147,13 @@ const ocrController = {
       res.json({
         success: true,
         message: 'OCR results validated successfully',
-        data: updatedDocument
+        data: updatedDocument,
       });
     } catch (error) {
       logger.error('OCR validation error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to validate OCR results'
+        message: 'Failed to validate OCR results',
       });
     }
   },
@@ -168,18 +168,18 @@ const ocrController = {
         prisma.document.findMany({
           where: {
             userId: req.user.id,
-            type: 'PRESCRIPTION'
+            type: 'PRESCRIPTION',
           },
           orderBy: { uploadedAt: 'desc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
         prisma.document.count({
           where: {
             userId: req.user.id,
-            type: 'PRESCRIPTION'
-          }
-        })
+            type: 'PRESCRIPTION',
+          },
+        }),
       ]);
 
       res.json({
@@ -190,15 +190,15 @@ const ocrController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get OCR history error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get OCR history'
+        message: 'Failed to get OCR history',
       });
     }
   },
@@ -211,7 +211,7 @@ const ocrController = {
       if (!imageBase64) {
         return res.status(400).json({
           success: false,
-          message: 'Image data is required'
+          message: 'Image data is required',
         });
       }
 
@@ -226,7 +226,7 @@ const ocrController = {
       if (options.resize !== false) {
         enhancedImage = enhancedImage.resize(2000, null, {
           withoutEnlargement: true,
-          fit: 'inside'
+          fit: 'inside',
         });
       }
 
@@ -254,7 +254,7 @@ const ocrController = {
       if (options.brightness || options.contrast) {
         enhancedImage = enhancedImage.modulate({
           brightness: options.brightness || 1,
-          saturation: options.contrast || 1
+          saturation: options.contrast || 1,
         });
       }
 
@@ -272,14 +272,16 @@ const ocrController = {
           enhancedImage: enhancedBase64,
           originalSize: imageBuffer.length,
           enhancedSize: enhancedBuffer.length,
-          compressionRatio: (imageBuffer.length / enhancedBuffer.length).toFixed(2)
-        }
+          compressionRatio: (
+            imageBuffer.length / enhancedBuffer.length
+          ).toFixed(2),
+        },
       });
     } catch (error) {
       logger.error('Image enhancement error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to enhance image'
+        message: 'Failed to enhance image',
       });
     }
   },
@@ -288,10 +290,10 @@ const ocrController = {
   getOCRAnalytics: async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       const where = {
         userId: req.user.id,
-        type: 'PRESCRIPTION'
+        type: 'PRESCRIPTION',
       };
 
       if (startDate || endDate) {
@@ -304,8 +306,8 @@ const ocrController = {
         where,
         select: {
           metadata: true,
-          uploadedAt: true
-        }
+          uploadedAt: true,
+        },
       });
 
       const analytics = {
@@ -314,20 +316,20 @@ const ocrController = {
         highConfidenceCount: 0,
         lowConfidenceCount: 0,
         enhancedImages: 0,
-        totalMedicinesDetected: 0
+        totalMedicinesDetected: 0,
       };
 
       if (documents.length > 0) {
         let totalConfidence = 0;
         let confidenceCount = 0;
 
-        documents.forEach(doc => {
+        documents.forEach((doc) => {
           const metadata = doc.metadata || {};
-          
+
           if (metadata.ocrConfidence) {
             totalConfidence += metadata.ocrConfidence;
             confidenceCount++;
-            
+
             if (metadata.ocrConfidence >= 0.8) {
               analytics.highConfidenceCount++;
             } else if (metadata.ocrConfidence < 0.6) {
@@ -344,28 +346,28 @@ const ocrController = {
           }
         });
 
-        analytics.averageConfidence = confidenceCount > 0 ? 
-          (totalConfidence / confidenceCount) : 0;
+        analytics.averageConfidence =
+          confidenceCount > 0 ? totalConfidence / confidenceCount : 0;
       }
 
       res.json({
         success: true,
-        data: analytics
+        data: analytics,
       });
     } catch (error) {
       logger.error('Get OCR analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get OCR analytics'
+        message: 'Failed to get OCR analytics',
       });
     }
-  }
+  },
 };
 
 // Helper function to parse medicines from OCR text
 async function parseMedicinesFromText(text) {
   const detectedMedicines = [];
-  
+
   try {
     // Get all medicines from database for matching
     const medicines = await prisma.medicine.findMany({
@@ -374,24 +376,24 @@ async function parseMedicinesFromText(text) {
         id: true,
         name: true,
         genericName: true,
-        brand: true
-      }
+        brand: true,
+      },
     });
 
     // Simple text parsing - look for medicine names
     const words = text.toLowerCase().split(/\s+/);
-    
-    medicines.forEach(medicine => {
+
+    medicines.forEach((medicine) => {
       const names = [
         medicine.name?.toLowerCase(),
         medicine.genericName?.toLowerCase(),
-        medicine.brand?.toLowerCase()
+        medicine.brand?.toLowerCase(),
       ].filter(Boolean);
 
-      names.forEach(name => {
-        if (words.some(word => word.includes(name) || name.includes(word))) {
+      names.forEach((name) => {
+        if (words.some((word) => word.includes(name) || name.includes(word))) {
           // Check if already detected
-          if (!detectedMedicines.find(m => m.id === medicine.id)) {
+          if (!detectedMedicines.find((m) => m.id === medicine.id)) {
             detectedMedicines.push({
               id: medicine.id,
               name: medicine.name,
@@ -399,7 +401,7 @@ async function parseMedicinesFromText(text) {
               brand: medicine.brand,
               confidence: 0.7, // Basic confidence score
               detected: true,
-              source: 'ocr'
+              source: 'ocr',
             });
           }
         }

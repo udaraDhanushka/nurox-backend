@@ -18,7 +18,7 @@ const appointmentController = {
         isVirtual = false,
         fee,
         notes,
-        tokenNumber
+        tokenNumber,
       } = req.body;
 
       // Validate token number uniqueness if provided
@@ -34,18 +34,18 @@ const appointmentController = {
             tokenNumber,
             appointmentDate: {
               gte: appointmentDateOnly,
-              lt: nextDay
+              lt: nextDay,
             },
             status: {
-              not: 'CANCELED'
-            }
-          }
+              not: 'CANCELED',
+            },
+          },
         });
 
         if (existingTokenAppointment) {
           return res.status(409).json({
             success: false,
-            message: `Token number ${tokenNumber} is already booked for this doctor on this date`
+            message: `Token number ${tokenNumber} is already booked for this doctor on this date`,
           });
         }
       }
@@ -65,7 +65,7 @@ const appointmentController = {
           fee,
           notes,
           tokenNumber,
-          isReschedule: false // New appointments are not rescheduled
+          isReschedule: false, // New appointments are not rescheduled
         },
         include: {
           patient: {
@@ -75,8 +75,8 @@ const appointmentController = {
               lastName: true,
               email: true,
               phone: true,
-              profileImage: true
-            }
+              profileImage: true,
+            },
           },
           doctor: {
             select: {
@@ -86,10 +86,10 @@ const appointmentController = {
               email: true,
               phone: true,
               profileImage: true,
-              doctorProfile: true
-            }
-          }
-        }
+              doctorProfile: true,
+            },
+          },
+        },
       });
 
       // Create notification for doctor
@@ -99,22 +99,24 @@ const appointmentController = {
           type: 'APPOINTMENT_REMINDER',
           title: 'New Appointment Request',
           message: `New appointment request from ${req.user.firstName} ${req.user.lastName}`,
-          data: { appointmentId: appointment.id }
-        }
+          data: { appointmentId: appointment.id },
+        },
       });
 
-      logger.info(`Appointment created: ${appointment.id} by ${req.user.email}`);
+      logger.info(
+        `Appointment created: ${appointment.id} by ${req.user.email}`
+      );
 
       res.status(201).json({
         success: true,
         message: 'Appointment created successfully',
-        data: appointment
+        data: appointment,
       });
     } catch (error) {
       logger.error('Create appointment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create appointment'
+        message: 'Failed to create appointment',
       });
     }
   },
@@ -128,13 +130,13 @@ const appointmentController = {
         startDate,
         endDate,
         page = 1,
-        limit = 20
+        limit = 20,
       } = req.query;
 
       const skip = (page - 1) * limit;
-      
+
       const where = {};
-      
+
       // Filter by user role
       if (req.user.role === 'PATIENT') {
         where.patientId = req.user.id;
@@ -163,8 +165,8 @@ const appointmentController = {
                 email: true,
                 phone: true,
                 profileImage: true,
-                patientProfile: true
-              }
+                patientProfile: true,
+              },
             },
             doctor: {
               select: {
@@ -174,15 +176,15 @@ const appointmentController = {
                 email: true,
                 phone: true,
                 profileImage: true,
-                doctorProfile: true
-              }
-            }
+                doctorProfile: true,
+              },
+            },
           },
           orderBy: { appointmentDate: 'desc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.appointment.count({ where })
+        prisma.appointment.count({ where }),
       ]);
 
       res.json({
@@ -193,15 +195,15 @@ const appointmentController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get appointments error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get appointments'
+        message: 'Failed to get appointments',
       });
     }
   },
@@ -222,8 +224,8 @@ const appointmentController = {
               email: true,
               phone: true,
               profileImage: true,
-              patientProfile: true
-            }
+              patientProfile: true,
+            },
           },
           doctor: {
             select: {
@@ -233,45 +235,48 @@ const appointmentController = {
               email: true,
               phone: true,
               profileImage: true,
-              doctorProfile: true
-            }
+              doctorProfile: true,
+            },
           },
           prescriptions: {
             include: {
               items: {
                 include: {
-                  medicine: true
-                }
-              }
-            }
-          }
-        }
+                  medicine: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!appointment) {
         return res.status(404).json({
           success: false,
-          message: 'Appointment not found'
+          message: 'Appointment not found',
         });
       }
 
       // Check authorization
-      if (appointment.patientId !== req.user.id && appointment.doctorId !== req.user.id) {
+      if (
+        appointment.patientId !== req.user.id &&
+        appointment.doctorId !== req.user.id
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
       res.json({
         success: true,
-        data: appointment
+        data: appointment,
       });
     } catch (error) {
       logger.error('Get appointment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get appointment'
+        message: 'Failed to get appointment',
       });
     }
   },
@@ -283,21 +288,24 @@ const appointmentController = {
       const { status, notes, meetingLink, tokenNumber } = req.body;
 
       const appointment = await prisma.appointment.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!appointment) {
         return res.status(404).json({
           success: false,
-          message: 'Appointment not found'
+          message: 'Appointment not found',
         });
       }
 
       // Check authorization
-      if (appointment.patientId !== req.user.id && appointment.doctorId !== req.user.id) {
+      if (
+        appointment.patientId !== req.user.id &&
+        appointment.doctorId !== req.user.id
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -318,8 +326,8 @@ const appointmentController = {
               lastName: true,
               email: true,
               phone: true,
-              profileImage: true
-            }
+              profileImage: true,
+            },
           },
           doctor: {
             select: {
@@ -329,25 +337,27 @@ const appointmentController = {
               email: true,
               phone: true,
               profileImage: true,
-              doctorProfile: true
-            }
-          }
-        }
+              doctorProfile: true,
+            },
+          },
+        },
       });
 
       // Create notification for status changes
       if (status) {
-        const notificationUserId = req.user.id === appointment.patientId ? 
-          appointment.doctorId : appointment.patientId;
-        
+        const notificationUserId =
+          req.user.id === appointment.patientId
+            ? appointment.doctorId
+            : appointment.patientId;
+
         await prisma.notification.create({
           data: {
             userId: notificationUserId,
             type: 'APPOINTMENT_REMINDER',
             title: 'Appointment Updated',
             message: `Appointment status changed to ${status}`,
-            data: { appointmentId: id }
-          }
+            data: { appointmentId: id },
+          },
         });
       }
 
@@ -356,13 +366,13 @@ const appointmentController = {
       res.json({
         success: true,
         message: 'Appointment updated successfully',
-        data: updatedAppointment
+        data: updatedAppointment,
       });
     } catch (error) {
       logger.error('Update appointment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update appointment'
+        message: 'Failed to update appointment',
       });
     }
   },
@@ -373,54 +383,59 @@ const appointmentController = {
       const { id } = req.params;
 
       const appointment = await prisma.appointment.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!appointment) {
         return res.status(404).json({
           success: false,
-          message: 'Appointment not found'
+          message: 'Appointment not found',
         });
       }
 
       // Check authorization
-      if (appointment.patientId !== req.user.id && appointment.doctorId !== req.user.id) {
+      if (
+        appointment.patientId !== req.user.id &&
+        appointment.doctorId !== req.user.id
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
       await prisma.appointment.update({
         where: { id },
-        data: { status: 'CANCELLED' }
+        data: { status: 'CANCELLED' },
       });
 
       // Create notification for other party
-      const notificationUserId = req.user.id === appointment.patientId ? 
-        appointment.doctorId : appointment.patientId;
-      
+      const notificationUserId =
+        req.user.id === appointment.patientId
+          ? appointment.doctorId
+          : appointment.patientId;
+
       await prisma.notification.create({
         data: {
           userId: notificationUserId,
           type: 'APPOINTMENT_REMINDER',
           title: 'Appointment Cancelled',
           message: 'An appointment has been cancelled',
-          data: { appointmentId: id }
-        }
+          data: { appointmentId: id },
+        },
       });
 
       logger.info(`Appointment cancelled: ${id} by ${req.user.email}`);
 
       res.json({
         success: true,
-        message: 'Appointment cancelled successfully'
+        message: 'Appointment cancelled successfully',
       });
     } catch (error) {
       logger.error('Cancel appointment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to cancel appointment'
+        message: 'Failed to cancel appointment',
       });
     }
   },
@@ -436,8 +451,8 @@ const appointmentController = {
         where.doctorProfile = {
           specialization: {
             contains: specialization,
-            mode: 'insensitive'
-          }
+            mode: 'insensitive',
+          },
         };
       }
 
@@ -451,12 +466,12 @@ const appointmentController = {
             email: true,
             phone: true,
             profileImage: true,
-            doctorProfile: true
+            doctorProfile: true,
           },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.user.count({ where })
+        prisma.user.count({ where }),
       ]);
 
       res.json({
@@ -467,15 +482,15 @@ const appointmentController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get doctors error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get doctors'
+        message: 'Failed to get doctors',
       });
     }
   },
@@ -489,13 +504,13 @@ const appointmentController = {
       if (!date) {
         return res.status(400).json({
           success: false,
-          message: 'Date parameter is required'
+          message: 'Date parameter is required',
         });
       }
 
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
-      
+
       const endDate = new Date(date);
       endDate.setHours(23, 59, 59, 999);
 
@@ -504,17 +519,17 @@ const appointmentController = {
           doctorId,
           appointmentDate: {
             gte: startDate,
-            lte: endDate
+            lte: endDate,
           },
           status: {
-            in: ['PENDING', 'CONFIRMED', 'IN_PROGRESS']
-          }
+            in: ['PENDING', 'CONFIRMED', 'IN_PROGRESS'],
+          },
         },
         select: {
           appointmentDate: true,
           duration: true,
-          tokenNumber: true
-        }
+          tokenNumber: true,
+        },
       });
 
       res.json({
@@ -522,14 +537,14 @@ const appointmentController = {
         data: {
           date,
           appointments: appointments.length,
-          bookedSlots: appointments
-        }
+          bookedSlots: appointments,
+        },
       });
     } catch (error) {
       logger.error('Get doctor availability error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get doctor availability'
+        message: 'Failed to get doctor availability',
       });
     }
   },
@@ -543,13 +558,13 @@ const appointmentController = {
       if (!date) {
         return res.status(400).json({
           success: false,
-          message: 'Date parameter is required'
+          message: 'Date parameter is required',
         });
       }
 
       const startDate = new Date(date);
       startDate.setHours(0, 0, 0, 0);
-      
+
       const endDate = new Date(date);
       endDate.setHours(23, 59, 59, 999);
 
@@ -559,23 +574,23 @@ const appointmentController = {
           doctorId,
           appointmentDate: {
             gte: startDate,
-            lte: endDate
+            lte: endDate,
           },
           status: {
-            not: 'CANCELED'
+            not: 'CANCELED',
           },
           tokenNumber: {
-            not: null
-          }
+            not: null,
+          },
         },
         select: {
           tokenNumber: true,
-          status: true
-        }
+          status: true,
+        },
       });
 
       // Extract booked token numbers
-      const bookedTokens = bookedAppointments.map(apt => apt.tokenNumber);
+      const bookedTokens = bookedAppointments.map((apt) => apt.tokenNumber);
 
       res.json({
         success: true,
@@ -583,14 +598,14 @@ const appointmentController = {
           date,
           doctorId,
           bookedTokens,
-          totalBooked: bookedTokens.length
-        }
+          totalBooked: bookedTokens.length,
+        },
       });
     } catch (error) {
       logger.error('Get token availability error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get token availability'
+        message: 'Failed to get token availability',
       });
     }
   },
@@ -599,35 +614,34 @@ const appointmentController = {
   rescheduleAppointment: async (req, res) => {
     try {
       const { id } = req.params;
-      const { 
-        newAppointmentDate, 
-        tokenNumber, 
-        notes 
-      } = req.body;
+      const { newAppointmentDate, tokenNumber, notes } = req.body;
 
       if (!newAppointmentDate) {
         return res.status(400).json({
           success: false,
-          message: 'New appointment date is required'
+          message: 'New appointment date is required',
         });
       }
 
       const appointment = await prisma.appointment.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!appointment) {
         return res.status(404).json({
           success: false,
-          message: 'Appointment not found'
+          message: 'Appointment not found',
         });
       }
 
       // Check authorization
-      if (appointment.patientId !== req.user.id && appointment.doctorId !== req.user.id) {
+      if (
+        appointment.patientId !== req.user.id &&
+        appointment.doctorId !== req.user.id
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -635,7 +649,7 @@ const appointmentController = {
       if (appointment.status !== 'CANCELED') {
         return res.status(400).json({
           success: false,
-          message: 'Only canceled appointments can be rescheduled'
+          message: 'Only canceled appointments can be rescheduled',
         });
       }
 
@@ -652,18 +666,18 @@ const appointmentController = {
             tokenNumber,
             appointmentDate: {
               gte: appointmentDateOnly,
-              lt: nextDay
+              lt: nextDay,
             },
             status: {
-              not: 'CANCELED'
-            }
-          }
+              not: 'CANCELED',
+            },
+          },
         });
 
         if (existingTokenAppointment) {
           return res.status(409).json({
             success: false,
-            message: `Token number ${tokenNumber} is already booked for this doctor on this date`
+            message: `Token number ${tokenNumber} is already booked for this doctor on this date`,
           });
         }
       }
@@ -672,7 +686,7 @@ const appointmentController = {
         appointmentDate: new Date(newAppointmentDate),
         status: 'PENDING', // Reset to pending for payment
         isReschedule: true,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
 
       if (tokenNumber !== undefined) updateData.tokenNumber = tokenNumber;
@@ -689,8 +703,8 @@ const appointmentController = {
               lastName: true,
               email: true,
               phone: true,
-              profileImage: true
-            }
+              profileImage: true,
+            },
           },
           doctor: {
             select: {
@@ -708,12 +722,12 @@ const appointmentController = {
                   consultationFee: true,
                   experience: true,
                   rating: true,
-                  reviewCount: true
-                }
-              }
-            }
-          }
-        }
+                  reviewCount: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       logger.info(`Appointment ${id} rescheduled by user ${req.user.email}`);
@@ -721,16 +735,17 @@ const appointmentController = {
       res.json({
         success: true,
         data: updatedAppointment,
-        message: 'Appointment rescheduled successfully. Payment required to confirm.'
+        message:
+          'Appointment rescheduled successfully. Payment required to confirm.',
       });
     } catch (error) {
       logger.error('Reschedule appointment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to reschedule appointment'
+        message: 'Failed to reschedule appointment',
       });
     }
-  }
+  },
 };
 
 module.exports = appointmentController;

@@ -10,18 +10,23 @@ const patientController = {
       const { patientId } = req.params;
 
       // Verify requester has appropriate access
-      if (req.user.role !== 'DOCTOR' && req.user.role !== 'PHARMACIST' && req.user.role !== 'SUPER_ADMIN') {
+      if (
+        req.user.role !== 'DOCTOR' &&
+        req.user.role !== 'PHARMACIST' &&
+        req.user.role !== 'SUPER_ADMIN'
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Only doctors, pharmacists, and admins can access patient profiles.'
+          message:
+            'Access denied. Only doctors, pharmacists, and admins can access patient profiles.',
         });
       }
 
       const patient = await prisma.user.findUnique({
-        where: { 
+        where: {
           id: patientId,
           role: 'PATIENT',
-          isActive: true
+          isActive: true,
         },
         select: {
           id: true,
@@ -46,16 +51,16 @@ const patientController = {
               zipCode: true,
               country: true,
               insuranceProvider: true,
-              insuranceNumber: true
-            }
-          }
-        }
+              insuranceNumber: true,
+            },
+          },
+        },
       });
 
       if (!patient) {
         return res.status(404).json({
           success: false,
-          message: 'Patient not found'
+          message: 'Patient not found',
         });
       }
 
@@ -66,7 +71,10 @@ const patientController = {
         const today = new Date();
         age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
           age--;
         }
       }
@@ -75,23 +83,25 @@ const patientController = {
         ...patient,
         age,
         name: `${patient.firstName} ${patient.lastName}`,
-        ...patient.patientProfile
+        ...patient.patientProfile,
       };
 
       // Remove the nested patientProfile object
       delete responseData.patientProfile;
 
-      logger.info(`Patient profile accessed: ${patientId} by ${req.user.role}: ${req.user.email}`);
+      logger.info(
+        `Patient profile accessed: ${patientId} by ${req.user.role}: ${req.user.email}`
+      );
 
       res.json({
         success: true,
-        data: responseData
+        data: responseData,
       });
     } catch (error) {
       logger.error('Get patient profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get patient profile'
+        message: 'Failed to get patient profile',
       });
     }
   },
@@ -102,18 +112,23 @@ const patientController = {
       const { patientId } = req.params;
 
       // Verify requester has appropriate access
-      if (req.user.role !== 'DOCTOR' && req.user.role !== 'PHARMACIST' && req.user.role !== 'SUPER_ADMIN') {
+      if (
+        req.user.role !== 'DOCTOR' &&
+        req.user.role !== 'PHARMACIST' &&
+        req.user.role !== 'SUPER_ADMIN'
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Only doctors, pharmacists, and admins can access patient information.'
+          message:
+            'Access denied. Only doctors, pharmacists, and admins can access patient information.',
         });
       }
 
       const patient = await prisma.user.findUnique({
-        where: { 
+        where: {
           id: patientId,
           role: 'PATIENT',
-          isActive: true
+          isActive: true,
         },
         select: {
           id: true,
@@ -123,14 +138,14 @@ const patientController = {
           phone: true,
           dateOfBirth: true,
           profileImage: true,
-          updatedAt: true
-        }
+          updatedAt: true,
+        },
       });
 
       if (!patient) {
         return res.status(404).json({
           success: false,
-          message: 'Patient not found'
+          message: 'Patient not found',
         });
       }
 
@@ -141,7 +156,10 @@ const patientController = {
         const today = new Date();
         age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
           age--;
         }
       }
@@ -149,18 +167,18 @@ const patientController = {
       const responseData = {
         ...patient,
         age,
-        name: `${patient.firstName} ${patient.lastName}`
+        name: `${patient.firstName} ${patient.lastName}`,
       };
 
       res.json({
         success: true,
-        data: responseData
+        data: responseData,
       });
     } catch (error) {
       logger.error('Get patient by ID error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get patient information'
+        message: 'Failed to get patient information',
       });
     }
   },
@@ -171,45 +189,49 @@ const patientController = {
       const { patientId } = req.params;
 
       // Verify requester has appropriate access
-      if (req.user.role !== 'DOCTOR' && req.user.role !== 'PHARMACIST' && req.user.role !== 'SUPER_ADMIN') {
+      if (
+        req.user.role !== 'DOCTOR' &&
+        req.user.role !== 'PHARMACIST' &&
+        req.user.role !== 'SUPER_ADMIN'
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied.'
+          message: 'Access denied.',
         });
       }
 
       const patient = await prisma.user.findUnique({
-        where: { 
+        where: {
           id: patientId,
           role: 'PATIENT',
-          isActive: true
+          isActive: true,
         },
         select: {
-          updatedAt: true
-        }
+          updatedAt: true,
+        },
       });
 
       if (!patient) {
         return res.status(404).json({
           success: false,
-          message: 'Patient not found'
+          message: 'Patient not found',
         });
       }
 
       res.json({
         success: true,
         data: {
-          lastUpdated: patient.updatedAt.toISOString()
-        }
+          lastUpdated: patient.updatedAt.toISOString(),
+        },
       });
     } catch (error) {
       logger.error('Get patient last updated error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get patient update time'
+        message: 'Failed to get patient update time',
       });
     }
-  }
+  },
 };
 
 module.exports = patientController;

@@ -10,7 +10,11 @@ router.use(authMiddleware);
 
 // Notification CRUD operations
 router.get('/', notificationController.getNotifications);
-router.post('/', validate(schemas.createNotification), notificationController.createNotification);
+router.post(
+  '/',
+  validate(schemas.createNotification),
+  notificationController.createNotification
+);
 router.put('/:id/read', notificationController.markAsRead);
 router.put('/read-all', notificationController.markAllAsRead);
 router.delete('/:id', notificationController.deleteNotification);

@@ -15,21 +15,27 @@ const paymentController = {
         claimId,
         description,
         customerInfo,
-        metadata = {}
+        metadata = {},
       } = req.body;
 
       if (!amount || amount <= 0) {
         return res.status(400).json({
           success: false,
-          message: 'Valid amount is required'
+          message: 'Valid amount is required',
         });
       }
 
       // Validate customer info
-      if (!customerInfo || !customerInfo.firstName || !customerInfo.lastName || !customerInfo.email) {
+      if (
+        !customerInfo ||
+        !customerInfo.firstName ||
+        !customerInfo.lastName ||
+        !customerInfo.email
+      ) {
         return res.status(400).json({
           success: false,
-          message: 'Customer information is required (firstName, lastName, email)'
+          message:
+            'Customer information is required (firstName, lastName, email)',
         });
       }
 
@@ -51,9 +57,9 @@ const paymentController = {
           metadata: {
             ...metadata,
             orderId,
-            customerInfo
-          }
-        }
+            customerInfo,
+          },
+        },
       });
 
       // Generate PayHere payment form data
@@ -67,21 +73,23 @@ const paymentController = {
         phone: customerInfo.phone || '0771234567',
         address: customerInfo.address || 'Colombo',
         city: customerInfo.city || 'Colombo',
-        country: customerInfo.country || 'Sri Lanka'
+        country: customerInfo.country || 'Sri Lanka',
       });
 
-      logger.info(`PayHere payment created: ${payment.id} for user ${req.user.email}`);
+      logger.info(
+        `PayHere payment created: ${payment.id} for user ${req.user.email}`
+      );
 
       res.status(201).json({
         success: true,
         message: 'PayHere payment created successfully',
-        data: payHereData
+        data: payHereData,
       });
     } catch (error) {
       logger.error('Create PayHere payment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create PayHere payment'
+        message: 'Failed to create PayHere payment',
       });
     }
   },
@@ -94,26 +102,26 @@ const paymentController = {
       if (!orderId || !paymentId) {
         return res.status(400).json({
           success: false,
-          message: 'Order ID and Payment ID are required'
+          message: 'Order ID and Payment ID are required',
         });
       }
 
       // Find payment by order ID (transaction ID)
       const payment = await prisma.payment.findUnique({
-        where: { transactionId: orderId }
+        where: { transactionId: orderId },
       });
 
       if (!payment) {
         return res.status(404).json({
           success: false,
-          message: 'Payment not found'
+          message: 'Payment not found',
         });
       }
 
       if (payment.userId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -126,19 +134,21 @@ const paymentController = {
           metadata: {
             ...payment.metadata,
             payHerePaymentId: paymentId,
-            payhereData: payhereData || {}
-          }
-        }
+            payhereData: payhereData || {},
+          },
+        },
       });
 
       // If payment is for an appointment, update appointment status to CONFIRMED
       if (payment.appointmentId) {
         await prisma.appointment.update({
           where: { id: payment.appointmentId },
-          data: { status: 'CONFIRMED' }
+          data: { status: 'CONFIRMED' },
         });
 
-        logger.info(`Appointment ${payment.appointmentId} status updated to CONFIRMED after PayHere payment confirmation`);
+        logger.info(
+          `Appointment ${payment.appointmentId} status updated to CONFIRMED after PayHere payment confirmation`
+        );
       }
 
       // Create notification for successful payment
@@ -148,11 +158,13 @@ const paymentController = {
           type: 'PAYMENT_DUE',
           title: 'Payment Successful',
           message: `Your payment of Rs. ${payment.amount} has been processed successfully via PayHere`,
-          data: { paymentId: payment.id, payHerePaymentId: paymentId }
-        }
+          data: { paymentId: payment.id, payHerePaymentId: paymentId },
+        },
       });
 
-      logger.info(`PayHere payment confirmed: ${payment.id} for user ${req.user.email}`);
+      logger.info(
+        `PayHere payment confirmed: ${payment.id} for user ${req.user.email}`
+      );
 
       res.json({
         success: true,
@@ -161,14 +173,14 @@ const paymentController = {
           id: payment.id,
           status: 'COMPLETED',
           amount: payment.amount,
-          transactionId: paymentId
-        }
+          transactionId: paymentId,
+        },
       });
     } catch (error) {
       logger.error('Confirm PayHere payment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to confirm payment'
+        message: 'Failed to confirm payment',
       });
     }
   },
@@ -182,7 +194,7 @@ const paymentController = {
         startDate,
         endDate,
         page = 1,
-        limit = 20
+        limit = 20,
       } = req.query;
 
       const skip = (page - 1) * limit;
@@ -208,10 +220,10 @@ const paymentController = {
                 doctor: {
                   select: {
                     firstName: true,
-                    lastName: true
-                  }
-                }
-              }
+                    lastName: true,
+                  },
+                },
+              },
             },
             prescription: {
               select: {
@@ -220,24 +232,24 @@ const paymentController = {
                 doctor: {
                   select: {
                     firstName: true,
-                    lastName: true
-                  }
-                }
-              }
+                    lastName: true,
+                  },
+                },
+              },
             },
             claim: {
               select: {
                 id: true,
                 claimNumber: true,
-                insuranceProvider: true
-              }
-            }
+                insuranceProvider: true,
+              },
+            },
           },
           orderBy: { createdAt: 'desc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.payment.count({ where })
+        prisma.payment.count({ where }),
       ]);
 
       res.json({
@@ -248,15 +260,15 @@ const paymentController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get payments error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get payments'
+        message: 'Failed to get payments',
       });
     }
   },
@@ -278,10 +290,10 @@ const paymentController = {
                 select: {
                   firstName: true,
                   lastName: true,
-                  doctorProfile: true
-                }
-              }
-            }
+                  doctorProfile: true,
+                },
+              },
+            },
           },
           prescription: {
             select: {
@@ -290,44 +302,44 @@ const paymentController = {
               doctor: {
                 select: {
                   firstName: true,
-                  lastName: true
-                }
-              }
-            }
+                  lastName: true,
+                },
+              },
+            },
           },
           claim: {
             select: {
               id: true,
               claimNumber: true,
-              insuranceProvider: true
-            }
-          }
-        }
+              insuranceProvider: true,
+            },
+          },
+        },
       });
 
       if (!payment) {
         return res.status(404).json({
           success: false,
-          message: 'Payment not found'
+          message: 'Payment not found',
         });
       }
 
       if (payment.userId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
       res.json({
         success: true,
-        data: payment
+        data: payment,
       });
     } catch (error) {
       logger.error('Get payment error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get payment'
+        message: 'Failed to get payment',
       });
     }
   },
@@ -339,27 +351,27 @@ const paymentController = {
       const { reason, amount } = req.body;
 
       const payment = await prisma.payment.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!payment) {
         return res.status(404).json({
           success: false,
-          message: 'Payment not found'
+          message: 'Payment not found',
         });
       }
 
       if (payment.userId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
       if (payment.status !== 'COMPLETED') {
         return res.status(400).json({
           success: false,
-          message: 'Can only refund completed payments'
+          message: 'Can only refund completed payments',
         });
       }
 
@@ -368,7 +380,7 @@ const paymentController = {
       if (refundAmount > payment.amount) {
         return res.status(400).json({
           success: false,
-          message: 'Refund amount cannot exceed payment amount'
+          message: 'Refund amount cannot exceed payment amount',
         });
       }
 
@@ -377,8 +389,8 @@ const paymentController = {
         payment_intent: payment.transactionId,
         amount: Math.round(refundAmount * 100), // Convert to cents
         metadata: {
-          reason: reason || 'Requested by customer'
-        }
+          reason: reason || 'Requested by customer',
+        },
       });
 
       // Update payment record
@@ -391,9 +403,9 @@ const paymentController = {
           metadata: {
             ...payment.metadata,
             refund: refund,
-            refundReason: reason
-          }
-        }
+            refundReason: reason,
+          },
+        },
       });
 
       logger.info(`Refund processed: ${id} for user ${req.user.email}`);
@@ -404,14 +416,14 @@ const paymentController = {
         data: {
           paymentId: id,
           refundAmount,
-          refundId: refund.id
-        }
+          refundId: refund.id,
+        },
       });
     } catch (error) {
       logger.error('Request refund error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to process refund'
+        message: 'Failed to process refund',
       });
     }
   },
@@ -420,7 +432,7 @@ const paymentController = {
   getPaymentAnalytics: async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       const where = { userId: req.user.id };
 
       if (startDate || endDate) {
@@ -435,12 +447,12 @@ const paymentController = {
         completedPayments,
         failedPayments,
         refundedPayments,
-        paymentsByMethod
+        paymentsByMethod,
       ] = await Promise.all([
         prisma.payment.count({ where }),
         prisma.payment.aggregate({
           where: { ...where, status: 'COMPLETED' },
-          _sum: { amount: true }
+          _sum: { amount: true },
         }),
         prisma.payment.count({ where: { ...where, status: 'COMPLETED' } }),
         prisma.payment.count({ where: { ...where, status: 'FAILED' } }),
@@ -449,8 +461,8 @@ const paymentController = {
           by: ['method'],
           where,
           _count: { method: true },
-          _sum: { amount: true }
-        })
+          _sum: { amount: true },
+        }),
       ]);
 
       res.json({
@@ -461,20 +473,20 @@ const paymentController = {
           statusBreakdown: {
             completed: completedPayments,
             failed: failedPayments,
-            refunded: refundedPayments
+            refunded: refundedPayments,
           },
-          paymentsByMethod: paymentsByMethod.map(item => ({
+          paymentsByMethod: paymentsByMethod.map((item) => ({
             method: item.method,
             count: item._count.method,
-            totalAmount: item._sum.amount || 0
-          }))
-        }
+            totalAmount: item._sum.amount || 0,
+          })),
+        },
       });
     } catch (error) {
       logger.error('Get payment analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get payment analytics'
+        message: 'Failed to get payment analytics',
       });
     }
   },
@@ -483,61 +495,84 @@ const paymentController = {
   handlePayHereWebhook: async (req, res) => {
     try {
       const notificationData = req.body;
-      
+
       // Validate required fields
-      const requiredFields = ['merchant_id', 'order_id', 'payment_id', 'payhere_amount', 'payhere_currency', 'status_code', 'md5sig'];
-      const missingFields = requiredFields.filter(field => !notificationData[field]);
-      
+      const requiredFields = [
+        'merchant_id',
+        'order_id',
+        'payment_id',
+        'payhere_amount',
+        'payhere_currency',
+        'status_code',
+        'md5sig',
+      ];
+      const missingFields = requiredFields.filter(
+        (field) => !notificationData[field]
+      );
+
       if (missingFields.length > 0) {
-        logger.warn(`PayHere webhook missing fields: ${missingFields.join(', ')}`);
+        logger.warn(
+          `PayHere webhook missing fields: ${missingFields.join(', ')}`
+        );
         return res.status(400).json({
           success: false,
-          message: `Missing required fields: ${missingFields.join(', ')}`
+          message: `Missing required fields: ${missingFields.join(', ')}`,
         });
       }
 
       // Verify hash signature
-      const isValidHash = payHereService.verifyNotificationHash(notificationData);
+      const isValidHash =
+        payHereService.verifyNotificationHash(notificationData);
       if (!isValidHash) {
         logger.warn('PayHere webhook hash verification failed');
         return res.status(400).json({
           success: false,
-          message: 'Invalid hash signature'
+          message: 'Invalid hash signature',
         });
       }
 
       // Get payment status
-      const paymentStatus = payHereService.getPaymentStatus(notificationData.status_code);
-      
+      const paymentStatus = payHereService.getPaymentStatus(
+        notificationData.status_code
+      );
+
       // Handle payment notification
       await handlePayHereNotification(notificationData, paymentStatus);
 
-      res.json({ 
-        success: true, 
-        message: 'Notification processed successfully' 
+      res.json({
+        success: true,
+        message: 'Notification processed successfully',
       });
     } catch (error) {
       logger.error('PayHere webhook error:', error);
       res.status(500).json({
         success: false,
-        message: 'Webhook processing failed'
+        message: 'Webhook processing failed',
       });
     }
-  }
+  },
 };
 
 // Helper function to handle PayHere notifications
 async function handlePayHereNotification(notificationData, paymentStatus) {
   try {
-    const { order_id, payment_id, payhere_amount, payhere_currency, status_code } = notificationData;
-    
+    const {
+      order_id,
+      payment_id,
+      payhere_amount,
+      payhere_currency,
+      status_code,
+    } = notificationData;
+
     // Find payment by order ID
     const payment = await prisma.payment.findFirst({
-      where: { transactionId: order_id }
+      where: { transactionId: order_id },
     });
 
     if (!payment) {
-      logger.warn(`PayHere notification: Payment not found for order ${order_id}`);
+      logger.warn(
+        `PayHere notification: Payment not found for order ${order_id}`
+      );
       return;
     }
 
@@ -548,8 +583,8 @@ async function handlePayHereNotification(notificationData, paymentStatus) {
         ...payment.metadata,
         payHerePaymentId: payment_id,
         payHereNotification: notificationData,
-        statusCode: status_code
-      }
+        statusCode: status_code,
+      },
     };
 
     // Set paid date for successful payments
@@ -559,7 +594,7 @@ async function handlePayHereNotification(notificationData, paymentStatus) {
 
     await prisma.payment.update({
       where: { id: payment.id },
-      data: updateData
+      data: updateData,
     });
 
     // Handle successful payment
@@ -568,10 +603,12 @@ async function handlePayHereNotification(notificationData, paymentStatus) {
       if (payment.appointmentId) {
         await prisma.appointment.update({
           where: { id: payment.appointmentId },
-          data: { status: 'CONFIRMED' }
+          data: { status: 'CONFIRMED' },
         });
-        
-        logger.info(`Appointment ${payment.appointmentId} confirmed via PayHere webhook`);
+
+        logger.info(
+          `Appointment ${payment.appointmentId} confirmed via PayHere webhook`
+        );
       }
 
       // Create success notification
@@ -581,15 +618,17 @@ async function handlePayHereNotification(notificationData, paymentStatus) {
           type: 'PAYMENT_DUE',
           title: 'Payment Successful',
           message: `Your payment of Rs. ${payhere_amount} has been processed successfully via PayHere`,
-          data: { 
-            paymentId: payment.id, 
+          data: {
+            paymentId: payment.id,
             payHerePaymentId: payment_id,
-            orderId: order_id
-          }
-        }
+            orderId: order_id,
+          },
+        },
       });
 
-      logger.info(`PayHere payment confirmed via webhook: ${payment.id}, PayHere ID: ${payment_id}`);
+      logger.info(
+        `PayHere payment confirmed via webhook: ${payment.id}, PayHere ID: ${payment_id}`
+      );
     } else {
       // Create failure notification for failed payments
       await prisma.notification.create({
@@ -598,16 +637,18 @@ async function handlePayHereNotification(notificationData, paymentStatus) {
           type: 'PAYMENT_DUE',
           title: 'Payment Failed',
           message: `Your payment of Rs. ${payhere_amount} could not be processed: ${paymentStatus.message}`,
-          data: { 
-            paymentId: payment.id, 
+          data: {
+            paymentId: payment.id,
             payHerePaymentId: payment_id,
             orderId: order_id,
-            failureReason: paymentStatus.message
-          }
-        }
+            failureReason: paymentStatus.message,
+          },
+        },
       });
 
-      logger.info(`PayHere payment failed via webhook: ${payment.id}, Status: ${paymentStatus.message}`);
+      logger.info(
+        `PayHere payment failed via webhook: ${payment.id}, Status: ${paymentStatus.message}`
+      );
     }
   } catch (error) {
     logger.error('Handle PayHere notification error:', error);

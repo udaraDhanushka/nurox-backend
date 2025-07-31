@@ -4,16 +4,16 @@ const Joi = require('joi');
 const validate = (schema) => {
   return (req, res, next) => {
     const { error } = schema.validate(req.body);
-    
+
     if (error) {
       const message = error.details[0].message;
       return res.status(400).json({
         success: false,
         message,
-        details: error.details
+        details: error.details,
       });
     }
-    
+
     next();
   };
 };
@@ -22,16 +22,16 @@ const validate = (schema) => {
 const validateQuery = (schema) => {
   return (req, res, next) => {
     const { error } = schema.validate(req.query);
-    
+
     if (error) {
       const message = error.details[0].message;
       return res.status(400).json({
         success: false,
         message,
-        details: error.details
+        details: error.details,
       });
     }
-    
+
     next();
   };
 };
@@ -44,11 +44,20 @@ const schemas = {
     password: Joi.string().min(8).required(),
     firstName: Joi.string().min(2).max(50).required(),
     lastName: Joi.string().min(2).max(50).required(),
-    role: Joi.string().valid(
-      'PATIENT', 'DOCTOR', 'PHARMACIST', 'MLT', 
-      'HOSPITAL_ADMIN', 'PHARMACY_ADMIN', 'LAB_ADMIN', 
-      'INSURANCE_ADMIN', 'INSURANCE_AGENT', 'SUPER_ADMIN'
-    ).required(),
+    role: Joi.string()
+      .valid(
+        'PATIENT',
+        'DOCTOR',
+        'PHARMACIST',
+        'MLT',
+        'HOSPITAL_ADMIN',
+        'PHARMACY_ADMIN',
+        'LAB_ADMIN',
+        'INSURANCE_ADMIN',
+        'INSURANCE_AGENT',
+        'SUPER_ADMIN'
+      )
+      .required(),
     phone: Joi.string().optional(),
     dateOfBirth: Joi.date().optional(),
     hospitalId: Joi.string().optional(),
@@ -57,21 +66,21 @@ const schemas = {
     insuranceId: Joi.string().optional(),
     specialization: Joi.string().optional(),
     certifications: Joi.array().items(Joi.string()).optional(),
-    specializations: Joi.array().items(Joi.string()).optional()
+    specializations: Joi.array().items(Joi.string()).optional(),
   }),
 
   login: Joi.object({
     email: Joi.string().email().required(),
-    password: Joi.string().required()
+    password: Joi.string().required(),
   }),
 
   forgotPassword: Joi.object({
-    email: Joi.string().email().required()
+    email: Joi.string().email().required(),
   }),
 
   resetPassword: Joi.object({
     token: Joi.string().required(),
-    password: Joi.string().min(8).required()
+    password: Joi.string().min(8).required(),
   }),
 
   // User profile schemas
@@ -81,16 +90,21 @@ const schemas = {
     phone: Joi.string().optional(),
     dateOfBirth: Joi.date().optional(),
     profileImage: Joi.string().optional(),
-    language: Joi.string().optional()
+    language: Joi.string().optional(),
   }),
 
   // Appointment schemas
   createAppointment: Joi.object({
     doctorId: Joi.string().required(),
-    type: Joi.string().valid(
-      'CONSULTATION', 'FOLLOW_UP', 'EMERGENCY', 
-      'ROUTINE_CHECKUP', 'SPECIALIST_VISIT'
-    ).required(),
+    type: Joi.string()
+      .valid(
+        'CONSULTATION',
+        'FOLLOW_UP',
+        'EMERGENCY',
+        'ROUTINE_CHECKUP',
+        'SPECIALIST_VISIT'
+      )
+      .required(),
     title: Joi.string().required(),
     description: Joi.string().optional(),
     appointmentDate: Joi.date().required(),
@@ -99,23 +113,23 @@ const schemas = {
     isVirtual: Joi.boolean().optional(),
     notes: Joi.string().optional(),
     tokenNumber: Joi.number().integer().min(1).max(100).optional(),
-    isReschedule: Joi.boolean().optional()
+    isReschedule: Joi.boolean().optional(),
   }),
 
   updateAppointment: Joi.object({
-    status: Joi.string().valid(
-      'PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELED'
-    ).optional(),
+    status: Joi.string()
+      .valid('PENDING', 'CONFIRMED', 'COMPLETED', 'CANCELED')
+      .optional(),
     notes: Joi.string().optional(),
     meetingLink: Joi.string().optional(),
     tokenNumber: Joi.number().integer().min(1).max(100).optional(),
-    isReschedule: Joi.boolean().optional()
+    isReschedule: Joi.boolean().optional(),
   }),
 
   rescheduleAppointment: Joi.object({
     newAppointmentDate: Joi.date().required(),
     tokenNumber: Joi.number().integer().min(1).max(100).optional(),
-    notes: Joi.string().optional()
+    notes: Joi.string().optional(),
   }),
 
   // Prescription schemas
@@ -125,22 +139,35 @@ const schemas = {
     diagnosis: Joi.string().optional(),
     notes: Joi.string().optional(),
     expiryDate: Joi.date().optional(),
-    items: Joi.array().items(
-      Joi.object({
-        medicineId: Joi.string().required(),
-        dosage: Joi.string().required(),
-        frequency: Joi.string().valid(
-          'ONCE_DAILY', 'TWICE_DAILY', 'THREE_TIMES_DAILY',
-          'FOUR_TIMES_DAILY', 'EVERY_4_HOURS', 'EVERY_6_HOURS',
-          'EVERY_8_HOURS', 'EVERY_12_HOURS', 'AS_NEEDED',
-          'BEFORE_MEALS', 'AFTER_MEALS', 'AT_BEDTIME',
-          'WEEKLY', 'MONTHLY'
-        ).required(),
-        duration: Joi.string().required(),
-        quantity: Joi.number().min(1).required(),
-        instructions: Joi.string().optional()
-      })
-    ).required()
+    items: Joi.array()
+      .items(
+        Joi.object({
+          medicineId: Joi.string().required(),
+          dosage: Joi.string().required(),
+          frequency: Joi.string()
+            .valid(
+              'ONCE_DAILY',
+              'TWICE_DAILY',
+              'THREE_TIMES_DAILY',
+              'FOUR_TIMES_DAILY',
+              'EVERY_4_HOURS',
+              'EVERY_6_HOURS',
+              'EVERY_8_HOURS',
+              'EVERY_12_HOURS',
+              'AS_NEEDED',
+              'BEFORE_MEALS',
+              'AFTER_MEALS',
+              'AT_BEDTIME',
+              'WEEKLY',
+              'MONTHLY'
+            )
+            .required(),
+          duration: Joi.string().required(),
+          quantity: Joi.number().min(1).required(),
+          instructions: Joi.string().optional(),
+        })
+      )
+      .required(),
   }),
 
   // Medicine schemas
@@ -148,21 +175,39 @@ const schemas = {
     name: Joi.string().required(),
     genericName: Joi.string().optional(),
     brand: Joi.string().optional(),
-    type: Joi.string().valid(
-      'TABLET', 'CAPSULE', 'SYRUP', 'INJECTION',
-      'CREAM', 'DROPS', 'INHALER', 'POWDER', 'OTHER'
-    ).required(),
+    type: Joi.string()
+      .valid(
+        'TABLET',
+        'CAPSULE',
+        'SYRUP',
+        'INJECTION',
+        'CREAM',
+        'DROPS',
+        'INHALER',
+        'POWDER',
+        'OTHER'
+      )
+      .required(),
     strength: Joi.string().required(),
-    unit: Joi.string().valid(
-      'MG', 'G', 'ML', 'MCG', 'IU', 'UNITS',
-      'DROPS', 'TABLETS', 'CAPSULES'
-    ).required(),
+    unit: Joi.string()
+      .valid(
+        'MG',
+        'G',
+        'ML',
+        'MCG',
+        'IU',
+        'UNITS',
+        'DROPS',
+        'TABLETS',
+        'CAPSULES'
+      )
+      .required(),
     description: Joi.string().optional(),
     sideEffects: Joi.array().items(Joi.string()).optional(),
     contraindications: Joi.array().items(Joi.string()).optional(),
     manufacturer: Joi.string().optional(),
     isControlled: Joi.boolean().optional(),
-    requiresPrescription: Joi.boolean().optional()
+    requiresPrescription: Joi.boolean().optional(),
   }),
 
   // Lab result schemas
@@ -174,31 +219,38 @@ const schemas = {
     orderedDate: Joi.date().optional(),
     labName: Joi.string().optional(),
     technicianName: Joi.string().optional(),
-    notes: Joi.string().optional()
+    notes: Joi.string().optional(),
   }),
 
   updateLabResult: Joi.object({
-    status: Joi.string().valid(
-      'PENDING', 'IN_PROGRESS', 'COMPLETED', 'REVIEWED', 'ABNORMAL'
-    ).optional(),
+    status: Joi.string()
+      .valid('PENDING', 'IN_PROGRESS', 'COMPLETED', 'REVIEWED', 'ABNORMAL')
+      .optional(),
     results: Joi.object().optional(),
     normalRanges: Joi.object().optional(),
     isAbnormal: Joi.boolean().optional(),
     notes: Joi.string().optional(),
-    completedDate: Joi.date().optional()
+    completedDate: Joi.date().optional(),
   }),
 
   // Notification schemas
   createNotification: Joi.object({
     userId: Joi.string().required(),
-    type: Joi.string().valid(
-      'APPOINTMENT_REMINDER', 'PRESCRIPTION_READY', 'LAB_RESULT',
-      'PAYMENT_DUE', 'INSURANCE_UPDATE', 'SYSTEM_ALERT', 'CHAT_MESSAGE'
-    ).required(),
+    type: Joi.string()
+      .valid(
+        'APPOINTMENT_REMINDER',
+        'PRESCRIPTION_READY',
+        'LAB_RESULT',
+        'PAYMENT_DUE',
+        'INSURANCE_UPDATE',
+        'SYSTEM_ALERT',
+        'CHAT_MESSAGE'
+      )
+      .required(),
     title: Joi.string().required(),
     message: Joi.string().required(),
     data: Joi.object().optional(),
-    scheduledFor: Joi.date().optional()
+    scheduledFor: Joi.date().optional(),
   }),
 
   // Chat schemas
@@ -206,7 +258,7 @@ const schemas = {
     receiverId: Joi.string().required(),
     message: Joi.string().required(),
     attachments: Joi.array().items(Joi.string()).optional(),
-    metadata: Joi.object().optional()
+    metadata: Joi.object().optional(),
   }),
 
   // Query validation schemas
@@ -214,7 +266,7 @@ const schemas = {
     page: Joi.number().min(1).optional(),
     limit: Joi.number().min(1).max(100).optional(),
     sortBy: Joi.string().optional(),
-    sortOrder: Joi.string().valid('asc', 'desc').optional()
+    sortOrder: Joi.string().valid('asc', 'desc').optional(),
   }),
 
   appointmentQuery: Joi.object({
@@ -223,11 +275,13 @@ const schemas = {
     doctorId: Joi.string().optional(),
     patientId: Joi.string().optional(),
     startDate: Joi.date().optional(),
-    endDate: Joi.date().optional()
-  }).concat(Joi.object({
-    page: Joi.number().min(1).optional(),
-    limit: Joi.number().min(1).max(100).optional()
-  })),
+    endDate: Joi.date().optional(),
+  }).concat(
+    Joi.object({
+      page: Joi.number().min(1).optional(),
+      limit: Joi.number().min(1).max(100).optional(),
+    })
+  ),
 
   prescriptionQuery: Joi.object({
     status: Joi.string().optional(),
@@ -235,11 +289,13 @@ const schemas = {
     doctorId: Joi.string().optional(),
     pharmacistId: Joi.string().optional(),
     startDate: Joi.date().optional(),
-    endDate: Joi.date().optional()
-  }).concat(Joi.object({
-    page: Joi.number().min(1).optional(),
-    limit: Joi.number().min(1).max(100).optional()
-  }))
+    endDate: Joi.date().optional(),
+  }).concat(
+    Joi.object({
+      page: Joi.number().min(1).optional(),
+      limit: Joi.number().min(1).max(100).optional(),
+    })
+  ),
 };
 
 // Express-validator middleware for validation errors
@@ -251,7 +307,7 @@ const validateRequest = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: 'Validation failed',
-      errors: errors.array()
+      errors: errors.array(),
     });
   }
   next();
@@ -261,5 +317,5 @@ module.exports = {
   validate,
   validateQuery,
   validateRequest,
-  schemas
+  schemas,
 };

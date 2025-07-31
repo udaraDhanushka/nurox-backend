@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 
 const organizationController = {
   // Hospital Management
-  
+
   // Create new hospital (Super Admin only)
   createHospital: async (req, res) => {
     try {
@@ -25,23 +25,21 @@ const organizationController = {
         accreditation,
         contactPerson,
         contactPhone,
-        contactEmail
+        contactEmail,
       } = req.body;
 
       // Check if hospital already exists
       const existingHospital = await prisma.hospital.findFirst({
         where: {
-          OR: [
-            { registrationNumber },
-            { licenseNumber }
-          ]
-        }
+          OR: [{ registrationNumber }, { licenseNumber }],
+        },
       });
 
       if (existingHospital) {
         return res.status(400).json({
           success: false,
-          message: 'Hospital with this registration number or license already exists'
+          message:
+            'Hospital with this registration number or license already exists',
         });
       }
 
@@ -63,8 +61,8 @@ const organizationController = {
           contactPerson,
           contactPhone,
           contactEmail,
-          status: 'ACTIVE' // Super admin can directly activate
-        }
+          status: 'ACTIVE', // Super admin can directly activate
+        },
       });
 
       logger.info(`Hospital created by super admin: ${hospital.name}`);
@@ -72,13 +70,13 @@ const organizationController = {
       res.status(201).json({
         success: true,
         message: 'Hospital created successfully',
-        data: hospital
+        data: hospital,
       });
     } catch (error) {
       logger.error('Create hospital error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create hospital'
+        message: 'Failed to create hospital',
       });
     }
   },
@@ -104,27 +102,27 @@ const organizationController = {
               lastName: true,
               email: true,
               role: true,
-              isActive: true
-            }
+              isActive: true,
+            },
           },
           ownedPharmacies: {
             select: {
               id: true,
               name: true,
-              status: true
-            }
+              status: true,
+            },
           },
           ownedLabs: {
             select: {
               id: true,
               name: true,
-              status: true
-            }
-          }
+              status: true,
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: 'desc',
+        },
       });
 
       const total = await prisma.hospital.count({ where });
@@ -137,15 +135,15 @@ const organizationController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get hospitals error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get hospitals'
+        message: 'Failed to get hospitals',
       });
     }
   },
@@ -170,32 +168,32 @@ const organizationController = {
                 select: {
                   specialization: true,
                   licenseNumber: true,
-                  verificationStatus: true
-                }
-              }
-            }
+                  verificationStatus: true,
+                },
+              },
+            },
           },
           ownedPharmacies: true,
-          ownedLabs: true
-        }
+          ownedLabs: true,
+        },
       });
 
       if (!hospital) {
         return res.status(404).json({
           success: false,
-          message: 'Hospital not found'
+          message: 'Hospital not found',
         });
       }
 
       res.json({
         success: true,
-        data: hospital
+        data: hospital,
       });
     } catch (error) {
       logger.error('Get hospital error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get hospital'
+        message: 'Failed to get hospital',
       });
     }
   },
@@ -225,10 +223,10 @@ const organizationController = {
               firstName: true,
               lastName: true,
               email: true,
-              role: true
-            }
-          }
-        }
+              role: true,
+            },
+          },
+        },
       });
 
       logger.info(`Hospital updated: ${hospital.name}`);
@@ -236,13 +234,13 @@ const organizationController = {
       res.json({
         success: true,
         message: 'Hospital updated successfully',
-        data: hospital
+        data: hospital,
       });
     } catch (error) {
       logger.error('Update hospital error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update hospital'
+        message: 'Failed to update hospital',
       });
     }
   },
@@ -254,31 +252,32 @@ const organizationController = {
 
       // Check if hospital has users
       const hospitalUsers = await prisma.user.count({
-        where: { hospitalId: id }
+        where: { hospitalId: id },
       });
 
       if (hospitalUsers > 0) {
         return res.status(400).json({
           success: false,
-          message: 'Cannot delete hospital with active users. Please reassign users first.'
+          message:
+            'Cannot delete hospital with active users. Please reassign users first.',
         });
       }
 
       await prisma.hospital.delete({
-        where: { id }
+        where: { id },
       });
 
       logger.info(`Hospital deleted: ${id}`);
 
       res.json({
         success: true,
-        message: 'Hospital deleted successfully'
+        message: 'Hospital deleted successfully',
       });
     } catch (error) {
       logger.error('Delete hospital error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete hospital'
+        message: 'Failed to delete hospital',
       });
     }
   },
@@ -290,10 +289,13 @@ const organizationController = {
       const { status = 'PENDING' } = req.query;
 
       // Check if user has permission to view this hospital's requests
-      if (req.user.role !== 'SUPER_ADMIN' && req.user.hospitalId !== hospitalId) {
+      if (
+        req.user.role !== 'SUPER_ADMIN' &&
+        req.user.hospitalId !== hospitalId
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -302,26 +304,26 @@ const organizationController = {
           hospitalId,
           role: 'DOCTOR',
           doctorProfile: {
-            verificationStatus: status
-          }
+            verificationStatus: status,
+          },
         },
         include: {
-          doctorProfile: true
+          doctorProfile: true,
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: 'desc',
+        },
       });
 
       res.json({
         success: true,
-        data: doctors
+        data: doctors,
       });
     } catch (error) {
       logger.error('Get doctor verification requests error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get doctor verification requests'
+        message: 'Failed to get doctor verification requests',
       });
     }
   },
@@ -333,10 +335,13 @@ const organizationController = {
       const { status, rejectionReason } = req.body;
 
       // Check if user has permission
-      if (req.user.role !== 'SUPER_ADMIN' && req.user.hospitalId !== hospitalId) {
+      if (
+        req.user.role !== 'SUPER_ADMIN' &&
+        req.user.hospitalId !== hospitalId
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -344,23 +349,23 @@ const organizationController = {
         where: {
           id: doctorId,
           hospitalId,
-          role: 'DOCTOR'
+          role: 'DOCTOR',
         },
         include: {
-          doctorProfile: true
-        }
+          doctorProfile: true,
+        },
       });
 
       if (!doctor) {
         return res.status(404).json({
           success: false,
-          message: 'Doctor not found'
+          message: 'Doctor not found',
         });
       }
 
       const updateData = {
         verificationStatus: status,
-        approvedBy: req.user.id
+        approvedBy: req.user.id,
       };
 
       if (status === 'APPROVED') {
@@ -372,7 +377,7 @@ const organizationController = {
 
       await prisma.doctorProfile.update({
         where: { userId: doctorId },
-        data: updateData
+        data: updateData,
       });
 
       // Send notification to doctor
@@ -381,28 +386,29 @@ const organizationController = {
           userId: doctorId,
           type: 'SYSTEM_ALERT',
           title: `Doctor Verification ${status}`,
-          message: status === 'APPROVED' 
-            ? 'Your doctor verification has been approved. You can now start accepting appointments.'
-            : `Your doctor verification has been rejected. Reason: ${rejectionReason || 'Not specified'}`,
+          message:
+            status === 'APPROVED'
+              ? 'Your doctor verification has been approved. You can now start accepting appointments.'
+              : `Your doctor verification has been rejected. Reason: ${rejectionReason || 'Not specified'}`,
           data: {
             hospitalId,
             status,
-            rejectionReason
-          }
-        }
+            rejectionReason,
+          },
+        },
       });
 
       logger.info(`Doctor verification updated: ${doctorId} - ${status}`);
 
       res.json({
         success: true,
-        message: `Doctor verification ${status.toLowerCase()} successfully`
+        message: `Doctor verification ${status.toLowerCase()} successfully`,
       });
     } catch (error) {
       logger.error('Update doctor verification error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update doctor verification'
+        message: 'Failed to update doctor verification',
       });
     }
   },
@@ -424,22 +430,20 @@ const organizationController = {
         contactPerson,
         contactPhone,
         contactEmail,
-        hospitalId
+        hospitalId,
       } = req.body;
 
       const existingPharmacy = await prisma.pharmacy.findFirst({
         where: {
-          OR: [
-            { registrationNumber },
-            { licenseNumber }
-          ]
-        }
+          OR: [{ registrationNumber }, { licenseNumber }],
+        },
       });
 
       if (existingPharmacy) {
         return res.status(400).json({
           success: false,
-          message: 'Pharmacy with this registration number or license already exists'
+          message:
+            'Pharmacy with this registration number or license already exists',
         });
       }
 
@@ -459,8 +463,8 @@ const organizationController = {
           contactPhone,
           contactEmail,
           hospitalId,
-          status: 'ACTIVE'
-        }
+          status: 'ACTIVE',
+        },
       });
 
       logger.info(`Pharmacy created: ${pharmacy.name}`);
@@ -468,13 +472,13 @@ const organizationController = {
       res.status(201).json({
         success: true,
         message: 'Pharmacy created successfully',
-        data: pharmacy
+        data: pharmacy,
       });
     } catch (error) {
       logger.error('Create pharmacy error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create pharmacy'
+        message: 'Failed to create pharmacy',
       });
     }
   },
@@ -498,22 +502,20 @@ const organizationController = {
         contactPerson,
         contactPhone,
         contactEmail,
-        hospitalId
+        hospitalId,
       } = req.body;
 
       const existingLab = await prisma.laboratory.findFirst({
         where: {
-          OR: [
-            { registrationNumber },
-            { licenseNumber }
-          ]
-        }
+          OR: [{ registrationNumber }, { licenseNumber }],
+        },
       });
 
       if (existingLab) {
         return res.status(400).json({
           success: false,
-          message: 'Laboratory with this registration number or license already exists'
+          message:
+            'Laboratory with this registration number or license already exists',
         });
       }
 
@@ -535,8 +537,8 @@ const organizationController = {
           contactPhone,
           contactEmail,
           hospitalId,
-          status: 'ACTIVE'
-        }
+          status: 'ACTIVE',
+        },
       });
 
       logger.info(`Laboratory created: ${laboratory.name}`);
@@ -544,13 +546,13 @@ const organizationController = {
       res.status(201).json({
         success: true,
         message: 'Laboratory created successfully',
-        data: laboratory
+        data: laboratory,
       });
     } catch (error) {
       logger.error('Create laboratory error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create laboratory'
+        message: 'Failed to create laboratory',
       });
     }
   },
@@ -571,22 +573,20 @@ const organizationController = {
         licenseExpiry,
         contactPerson,
         contactPhone,
-        contactEmail
+        contactEmail,
       } = req.body;
 
       const existingInsurance = await prisma.insuranceCompany.findFirst({
         where: {
-          OR: [
-            { registrationNumber },
-            { licenseNumber }
-          ]
-        }
+          OR: [{ registrationNumber }, { licenseNumber }],
+        },
       });
 
       if (existingInsurance) {
         return res.status(400).json({
           success: false,
-          message: 'Insurance company with this registration number or license already exists'
+          message:
+            'Insurance company with this registration number or license already exists',
         });
       }
 
@@ -605,8 +605,8 @@ const organizationController = {
           contactPerson,
           contactPhone,
           contactEmail,
-          status: 'ACTIVE'
-        }
+          status: 'ACTIVE',
+        },
       });
 
       logger.info(`Insurance company created: ${insuranceCompany.name}`);
@@ -614,13 +614,13 @@ const organizationController = {
       res.status(201).json({
         success: true,
         message: 'Insurance company created successfully',
-        data: insuranceCompany
+        data: insuranceCompany,
       });
     } catch (error) {
       logger.error('Create insurance company error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create insurance company'
+        message: 'Failed to create insurance company',
       });
     }
   },
@@ -628,62 +628,63 @@ const organizationController = {
   // Get all organizations (for super admin dashboard)
   getAllOrganizations: async (req, res) => {
     try {
-      const [hospitals, pharmacies, laboratories, insuranceCompanies] = await Promise.all([
-        prisma.hospital.findMany({
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            createdAt: true,
-            _count: {
-              select: {
-                users: true
-              }
-            }
-          }
-        }),
-        prisma.pharmacy.findMany({
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            createdAt: true,
-            hospitalId: true,
-            _count: {
-              select: {
-                users: true
-              }
-            }
-          }
-        }),
-        prisma.laboratory.findMany({
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            createdAt: true,
-            hospitalId: true,
-            _count: {
-              select: {
-                users: true
-              }
-            }
-          }
-        }),
-        prisma.insuranceCompany.findMany({
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            createdAt: true,
-            _count: {
-              select: {
-                users: true
-              }
-            }
-          }
-        })
-      ]);
+      const [hospitals, pharmacies, laboratories, insuranceCompanies] =
+        await Promise.all([
+          prisma.hospital.findMany({
+            select: {
+              id: true,
+              name: true,
+              status: true,
+              createdAt: true,
+              _count: {
+                select: {
+                  users: true,
+                },
+              },
+            },
+          }),
+          prisma.pharmacy.findMany({
+            select: {
+              id: true,
+              name: true,
+              status: true,
+              createdAt: true,
+              hospitalId: true,
+              _count: {
+                select: {
+                  users: true,
+                },
+              },
+            },
+          }),
+          prisma.laboratory.findMany({
+            select: {
+              id: true,
+              name: true,
+              status: true,
+              createdAt: true,
+              hospitalId: true,
+              _count: {
+                select: {
+                  users: true,
+                },
+              },
+            },
+          }),
+          prisma.insuranceCompany.findMany({
+            select: {
+              id: true,
+              name: true,
+              status: true,
+              createdAt: true,
+              _count: {
+                select: {
+                  users: true,
+                },
+              },
+            },
+          }),
+        ]);
 
       res.json({
         success: true,
@@ -696,18 +697,18 @@ const organizationController = {
             totalHospitals: hospitals.length,
             totalPharmacies: pharmacies.length,
             totalLaboratories: laboratories.length,
-            totalInsuranceCompanies: insuranceCompanies.length
-          }
-        }
+            totalInsuranceCompanies: insuranceCompanies.length,
+          },
+        },
       });
     } catch (error) {
       logger.error('Get all organizations error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get organizations'
+        message: 'Failed to get organizations',
       });
     }
-  }
+  },
 };
 
 module.exports = organizationController;

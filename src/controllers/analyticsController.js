@@ -8,17 +8,17 @@ const analyticsController = {
   getDashboardAnalytics: async (req, res) => {
     try {
       const { period = '30', startDate, endDate } = req.query;
-      
+
       let dateFilter = {};
       if (startDate && endDate) {
         dateFilter = {
           gte: new Date(startDate),
-          lte: new Date(endDate)
+          lte: new Date(endDate),
         };
       } else {
         const daysAgo = parseInt(period);
         dateFilter = {
-          gte: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000)
+          gte: new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000),
         };
       }
 
@@ -26,13 +26,13 @@ const analyticsController = {
 
       res.json({
         success: true,
-        data: analytics
+        data: analytics,
       });
     } catch (error) {
       logger.error('Get dashboard analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get dashboard analytics'
+        message: 'Failed to get dashboard analytics',
       });
     }
   },
@@ -42,9 +42,9 @@ const analyticsController = {
     try {
       const { period = '7' } = req.query;
       const daysAgo = parseInt(period);
-      
+
       const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
-      
+
       // Generate daily activity for the period
       const dailyActivity = [];
       for (let i = daysAgo; i >= 0; i--) {
@@ -52,11 +52,15 @@ const analyticsController = {
         const dayStart = new Date(date.setHours(0, 0, 0, 0));
         const dayEnd = new Date(date.setHours(23, 59, 59, 999));
 
-        const activity = await getUserDailyActivity(req.user.id, dayStart, dayEnd);
-        
+        const activity = await getUserDailyActivity(
+          req.user.id,
+          dayStart,
+          dayEnd
+        );
+
         dailyActivity.push({
           date: dayStart.toISOString().split('T')[0],
-          ...activity
+          ...activity,
         });
       }
 
@@ -64,14 +68,14 @@ const analyticsController = {
         success: true,
         data: {
           period: `${period} days`,
-          dailyActivity
-        }
+          dailyActivity,
+        },
       });
     } catch (error) {
       logger.error('Get user activity error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get user activity'
+        message: 'Failed to get user activity',
       });
     }
   },
@@ -82,7 +86,7 @@ const analyticsController = {
       if (req.user.role !== 'PATIENT') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Patient role required.'
+          message: 'Access denied. Patient role required.',
         });
       }
 
@@ -90,54 +94,55 @@ const analyticsController = {
       const daysAgo = parseInt(period);
       const startDate = new Date(Date.now() - daysAgo * 24 * 60 * 60 * 1000);
 
-      const [vitals, labResults, prescriptions, appointments] = await Promise.all([
-        // Recent vitals
-        prisma.vital.findMany({
-          where: {
-            patientId: req.user.id,
-            recordedAt: { gte: startDate }
-          },
-          orderBy: { recordedAt: 'desc' },
-          take: 10
-        }),
-        // Recent lab results
-        prisma.labResult.findMany({
-          where: {
-            patientId: req.user.id,
-            orderedDate: { gte: startDate },
-            status: 'COMPLETED'
-          },
-          include: {
-            appointment: {
-              select: {
-                doctor: {
-                  select: {
-                    firstName: true,
-                    lastName: true
-                  }
-                }
-              }
-            }
-          },
-          orderBy: { orderedDate: 'desc' },
-          take: 5
-        }),
-        // Active prescriptions
-        prisma.prescription.count({
-          where: {
-            patientId: req.user.id,
-            status: { in: ['PENDING', 'PROCESSING', 'READY'] }
-          }
-        }),
-        // Upcoming appointments
-        prisma.appointment.count({
-          where: {
-            patientId: req.user.id,
-            appointmentDate: { gte: new Date() },
-            status: { in: ['PENDING', 'CONFIRMED'] }
-          }
-        })
-      ]);
+      const [vitals, labResults, prescriptions, appointments] =
+        await Promise.all([
+          // Recent vitals
+          prisma.vital.findMany({
+            where: {
+              patientId: req.user.id,
+              recordedAt: { gte: startDate },
+            },
+            orderBy: { recordedAt: 'desc' },
+            take: 10,
+          }),
+          // Recent lab results
+          prisma.labResult.findMany({
+            where: {
+              patientId: req.user.id,
+              orderedDate: { gte: startDate },
+              status: 'COMPLETED',
+            },
+            include: {
+              appointment: {
+                select: {
+                  doctor: {
+                    select: {
+                      firstName: true,
+                      lastName: true,
+                    },
+                  },
+                },
+              },
+            },
+            orderBy: { orderedDate: 'desc' },
+            take: 5,
+          }),
+          // Active prescriptions
+          prisma.prescription.count({
+            where: {
+              patientId: req.user.id,
+              status: { in: ['PENDING', 'PROCESSING', 'READY'] },
+            },
+          }),
+          // Upcoming appointments
+          prisma.appointment.count({
+            where: {
+              patientId: req.user.id,
+              appointmentDate: { gte: new Date() },
+              status: { in: ['PENDING', 'CONFIRMED'] },
+            },
+          }),
+        ]);
 
       // Calculate health trends
       const healthTrends = calculateHealthTrends(vitals);
@@ -149,18 +154,18 @@ const analyticsController = {
             activePrescriptions,
             upcomingAppointments: appointments,
             recentVitals: vitals.length,
-            recentLabResults: labResults.length
+            recentLabResults: labResults.length,
           },
           vitals: vitals.slice(0, 5), // Last 5 vital records
           labResults,
-          healthTrends
-        }
+          healthTrends,
+        },
       });
     } catch (error) {
       logger.error('Get health metrics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get health metrics'
+        message: 'Failed to get health metrics',
       });
     }
   },
@@ -171,7 +176,7 @@ const analyticsController = {
       if (req.user.role !== 'DOCTOR') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Doctor role required.'
+          message: 'Access denied. Doctor role required.',
         });
       }
 
@@ -185,49 +190,51 @@ const analyticsController = {
         cancelledAppointments,
         totalPatients,
         prescriptionsIssued,
-        averageRating
+        averageRating,
       ] = await Promise.all([
         prisma.appointment.count({
           where: {
             doctorId: req.user.id,
-            appointmentDate: { gte: startDate }
-          }
-        }),
-        prisma.appointment.count({
-          where: {
-            doctorId: req.user.id,
             appointmentDate: { gte: startDate },
-            status: 'COMPLETED'
-          }
-        }),
-        prisma.appointment.count({
-          where: {
-            doctorId: req.user.id,
-            appointmentDate: { gte: startDate },
-            status: 'CANCELLED'
-          }
-        }),
-        prisma.appointment.count({
-          where: {
-            doctorId: req.user.id,
-            appointmentDate: { gte: startDate }
           },
-          distinct: ['patientId']
+        }),
+        prisma.appointment.count({
+          where: {
+            doctorId: req.user.id,
+            appointmentDate: { gte: startDate },
+            status: 'COMPLETED',
+          },
+        }),
+        prisma.appointment.count({
+          where: {
+            doctorId: req.user.id,
+            appointmentDate: { gte: startDate },
+            status: 'CANCELLED',
+          },
+        }),
+        prisma.appointment.count({
+          where: {
+            doctorId: req.user.id,
+            appointmentDate: { gte: startDate },
+          },
+          distinct: ['patientId'],
         }),
         prisma.prescription.count({
           where: {
             doctorId: req.user.id,
-            issuedDate: { gte: startDate }
-          }
+            issuedDate: { gte: startDate },
+          },
         }),
         prisma.doctorProfile.findUnique({
           where: { userId: req.user.id },
-          select: { rating: true, reviewCount: true }
-        })
+          select: { rating: true, reviewCount: true },
+        }),
       ]);
 
-      const completionRate = totalAppointments > 0 ? 
-        (completedAppointments / totalAppointments * 100).toFixed(1) : 0;
+      const completionRate =
+        totalAppointments > 0
+          ? ((completedAppointments / totalAppointments) * 100).toFixed(1)
+          : 0;
 
       res.json({
         success: true,
@@ -237,25 +244,25 @@ const analyticsController = {
             total: totalAppointments,
             completed: completedAppointments,
             cancelled: cancelledAppointments,
-            completionRate: parseFloat(completionRate)
+            completionRate: parseFloat(completionRate),
           },
           patients: {
-            total: totalPatients
+            total: totalPatients,
           },
           prescriptions: {
-            issued: prescriptionsIssued
+            issued: prescriptionsIssued,
           },
           rating: {
             average: averageRating?.rating || 0,
-            reviewCount: averageRating?.reviewCount || 0
-          }
-        }
+            reviewCount: averageRating?.reviewCount || 0,
+          },
+        },
       });
     } catch (error) {
       logger.error('Get doctor performance error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get doctor performance analytics'
+        message: 'Failed to get doctor performance analytics',
       });
     }
   },
@@ -266,7 +273,7 @@ const analyticsController = {
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
@@ -279,49 +286,49 @@ const analyticsController = {
         totalRevenue,
         inventoryItems,
         lowStockItems,
-        expiringItems
+        expiringItems,
       ] = await Promise.all([
         prisma.prescriptionItem.count({
           where: {
             prescription: {
-              pharmacistId: req.user.id
+              pharmacistId: req.user.id,
             },
             dispensedAt: { gte: startDate },
-            isDispensed: true
-          }
+            isDispensed: true,
+          },
         }),
         prisma.payment.aggregate({
           where: {
             prescription: {
-              pharmacistId: req.user.id
+              pharmacistId: req.user.id,
             },
             status: 'COMPLETED',
-            paidAt: { gte: startDate }
+            paidAt: { gte: startDate },
           },
-          _sum: { amount: true }
-        }),
-        prisma.inventoryItem.count({
-          where: {
-            pharmacistId: req.user.id,
-            isActive: true
-          }
+          _sum: { amount: true },
         }),
         prisma.inventoryItem.count({
           where: {
             pharmacistId: req.user.id,
             isActive: true,
-            quantity: { lte: 10 }
-          }
+          },
+        }),
+        prisma.inventoryItem.count({
+          where: {
+            pharmacistId: req.user.id,
+            isActive: true,
+            quantity: { lte: 10 },
+          },
         }),
         prisma.inventoryItem.count({
           where: {
             pharmacistId: req.user.id,
             isActive: true,
             expiryDate: {
-              lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
-            }
-          }
-        })
+              lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+            },
+          },
+        }),
       ]);
 
       res.json({
@@ -329,23 +336,23 @@ const analyticsController = {
         data: {
           period: `${period} days`,
           prescriptions: {
-            dispensed: prescriptionsDispensed
+            dispensed: prescriptionsDispensed,
           },
           revenue: {
-            total: totalRevenue._sum.amount || 0
+            total: totalRevenue._sum.amount || 0,
           },
           inventory: {
             totalItems: inventoryItems,
             lowStockItems,
-            expiringItems
-          }
-        }
+            expiringItems,
+          },
+        },
       });
     } catch (error) {
       logger.error('Get pharmacy analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get pharmacy analytics'
+        message: 'Failed to get pharmacy analytics',
       });
     }
   },
@@ -356,7 +363,7 @@ const analyticsController = {
       if (req.user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Admin role required.'
+          message: 'Access denied. Admin role required.',
         });
       }
 
@@ -370,34 +377,34 @@ const analyticsController = {
         totalAppointments,
         totalPrescriptions,
         totalPayments,
-        usersByRole
+        usersByRole,
       ] = await Promise.all([
         prisma.user.count({ where: { isActive: true } }),
         prisma.user.count({
           where: {
             isActive: true,
-            createdAt: { gte: startDate }
-          }
+            createdAt: { gte: startDate },
+          },
         }),
         prisma.appointment.count({
-          where: { appointmentDate: { gte: startDate } }
+          where: { appointmentDate: { gte: startDate } },
         }),
         prisma.prescription.count({
-          where: { issuedDate: { gte: startDate } }
+          where: { issuedDate: { gte: startDate } },
         }),
         prisma.payment.aggregate({
           where: {
             status: 'COMPLETED',
-            paidAt: { gte: startDate }
+            paidAt: { gte: startDate },
           },
           _sum: { amount: true },
-          _count: { id: true }
+          _count: { id: true },
         }),
         prisma.user.groupBy({
           by: ['role'],
           where: { isActive: true },
-          _count: { role: true }
-        })
+          _count: { role: true },
+        }),
       ]);
 
       res.json({
@@ -407,37 +414,37 @@ const analyticsController = {
           users: {
             total: totalUsers,
             new: newUsers,
-            byRole: usersByRole.map(item => ({
+            byRole: usersByRole.map((item) => ({
               role: item.role,
-              count: item._count.role
-            }))
+              count: item._count.role,
+            })),
           },
           appointments: {
-            total: totalAppointments
+            total: totalAppointments,
           },
           prescriptions: {
-            total: totalPrescriptions
+            total: totalPrescriptions,
           },
           payments: {
             total: totalPayments._count.id || 0,
-            revenue: totalPayments._sum.amount || 0
-          }
-        }
+            revenue: totalPayments._sum.amount || 0,
+          },
+        },
       });
     } catch (error) {
       logger.error('Get system analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get system analytics'
+        message: 'Failed to get system analytics',
       });
     }
-  }
+  },
 };
 
 // Helper function to get dashboard data based on user role
 async function getDashboardDataByRole(user, dateFilter) {
   const baseWhere = { createdAt: dateFilter };
-  
+
   switch (user.role) {
     case 'PATIENT':
       return await getPatientDashboard(user.id, dateFilter);
@@ -454,77 +461,80 @@ async function getDashboardDataByRole(user, dateFilter) {
 
 // Patient dashboard data
 async function getPatientDashboard(userId, dateFilter) {
-  const [appointments, prescriptions, labResults, notifications] = await Promise.all([
-    prisma.appointment.count({
-      where: {
-        patientId: userId,
-        appointmentDate: dateFilter
-      }
-    }),
-    prisma.prescription.count({
-      where: {
-        patientId: userId,
-        issuedDate: dateFilter
-      }
-    }),
-    prisma.labResult.count({
-      where: {
-        patientId: userId,
-        orderedDate: dateFilter
-      }
-    }),
-    prisma.notification.count({
-      where: {
-        userId,
-        createdAt: dateFilter,
-        isRead: false
-      }
-    })
-  ]);
+  const [appointments, prescriptions, labResults, notifications] =
+    await Promise.all([
+      prisma.appointment.count({
+        where: {
+          patientId: userId,
+          appointmentDate: dateFilter,
+        },
+      }),
+      prisma.prescription.count({
+        where: {
+          patientId: userId,
+          issuedDate: dateFilter,
+        },
+      }),
+      prisma.labResult.count({
+        where: {
+          patientId: userId,
+          orderedDate: dateFilter,
+        },
+      }),
+      prisma.notification.count({
+        where: {
+          userId,
+          createdAt: dateFilter,
+          isRead: false,
+        },
+      }),
+    ]);
 
   return {
     appointments,
     prescriptions,
     labResults,
-    unreadNotifications: notifications
+    unreadNotifications: notifications,
   };
 }
 
 // Doctor dashboard data
 async function getDoctorDashboard(userId, dateFilter) {
-  const [appointments, prescriptions, patients, labResults] = await Promise.all([
-    prisma.appointment.count({
-      where: {
-        doctorId: userId,
-        appointmentDate: dateFilter
-      }
-    }),
-    prisma.prescription.count({
-      where: {
-        doctorId: userId,
-        issuedDate: dateFilter
-      }
-    }),
-    prisma.appointment.count({
-      where: {
-        doctorId: userId,
-        appointmentDate: dateFilter
-      },
-      distinct: ['patientId']
-    }),
-    prisma.labResult.count({
-      where: {
-        reviewedById: userId,
-        orderedDate: dateFilter
-      }
-    })
-  ]);
+  const [appointments, prescriptions, patients, labResults] = await Promise.all(
+    [
+      prisma.appointment.count({
+        where: {
+          doctorId: userId,
+          appointmentDate: dateFilter,
+        },
+      }),
+      prisma.prescription.count({
+        where: {
+          doctorId: userId,
+          issuedDate: dateFilter,
+        },
+      }),
+      prisma.appointment.count({
+        where: {
+          doctorId: userId,
+          appointmentDate: dateFilter,
+        },
+        distinct: ['patientId'],
+      }),
+      prisma.labResult.count({
+        where: {
+          reviewedById: userId,
+          orderedDate: dateFilter,
+        },
+      }),
+    ]
+  );
 
   return {
     appointments,
     prescriptions,
     patients,
-    labResults
+    labResults,
   };
 }
 
@@ -534,30 +544,30 @@ async function getPharmacistDashboard(userId, dateFilter) {
     prisma.prescription.count({
       where: {
         pharmacistId: userId,
-        issuedDate: dateFilter
-      }
+        issuedDate: dateFilter,
+      },
     }),
     prisma.inventoryItem.count({
       where: {
         pharmacistId: userId,
-        isActive: true
-      }
+        isActive: true,
+      },
     }),
     prisma.prescriptionItem.count({
       where: {
         prescription: {
-          pharmacistId: userId
+          pharmacistId: userId,
         },
         dispensedAt: dateFilter,
-        isDispensed: true
-      }
-    })
+        isDispensed: true,
+      },
+    }),
   ]);
 
   return {
     prescriptions,
     inventoryItems: inventory,
-    dispensedItems: dispensed
+    dispensedItems: dispensed,
   };
 }
 
@@ -567,23 +577,23 @@ async function getAdminDashboard(dateFilter) {
     prisma.user.count({
       where: {
         createdAt: dateFilter,
-        isActive: true
-      }
+        isActive: true,
+      },
     }),
     prisma.appointment.count({
-      where: { appointmentDate: dateFilter }
+      where: { appointmentDate: dateFilter },
     }),
     prisma.prescription.count({
-      where: { issuedDate: dateFilter }
+      where: { issuedDate: dateFilter },
     }),
     prisma.payment.aggregate({
       where: {
         createdAt: dateFilter,
-        status: 'COMPLETED'
+        status: 'COMPLETED',
       },
       _sum: { amount: true },
-      _count: { id: true }
-    })
+      _count: { id: true },
+    }),
   ]);
 
   return {
@@ -591,7 +601,7 @@ async function getAdminDashboard(dateFilter) {
     appointments,
     prescriptions,
     payments: payments._count.id,
-    revenue: payments._sum.amount || 0
+    revenue: payments._sum.amount || 0,
   };
 }
 
@@ -600,46 +610,40 @@ async function getUserDailyActivity(userId, dayStart, dayEnd) {
   const [appointments, prescriptions, messages, logins] = await Promise.all([
     prisma.appointment.count({
       where: {
-        OR: [
-          { patientId: userId },
-          { doctorId: userId }
-        ],
+        OR: [{ patientId: userId }, { doctorId: userId }],
         appointmentDate: {
           gte: dayStart,
-          lte: dayEnd
-        }
-      }
+          lte: dayEnd,
+        },
+      },
     }),
     prisma.prescription.count({
       where: {
-        OR: [
-          { patientId: userId },
-          { doctorId: userId }
-        ],
+        OR: [{ patientId: userId }, { doctorId: userId }],
         issuedDate: {
           gte: dayStart,
-          lte: dayEnd
-        }
-      }
+          lte: dayEnd,
+        },
+      },
     }),
     prisma.chatMessage.count({
       where: {
         senderId: userId,
         createdAt: {
           gte: dayStart,
-          lte: dayEnd
-        }
-      }
+          lte: dayEnd,
+        },
+      },
     }),
     // Note: You would need to implement login tracking for this
-    0 // Placeholder for login count
+    0, // Placeholder for login count
   ]);
 
   return {
     appointments,
     prescriptions,
     messages,
-    logins
+    logins,
   };
 }
 
@@ -655,8 +659,12 @@ function calculateHealthTrends(vitals) {
   if (latest.bloodPressureSystolic && previous.bloodPressureSystolic) {
     trends.bloodPressure = {
       current: `${latest.bloodPressureSystolic}/${latest.bloodPressureDiastolic}`,
-      trend: latest.bloodPressureSystolic > previous.bloodPressureSystolic ? 'up' : 
-             latest.bloodPressureSystolic < previous.bloodPressureSystolic ? 'down' : 'stable'
+      trend:
+        latest.bloodPressureSystolic > previous.bloodPressureSystolic
+          ? 'up'
+          : latest.bloodPressureSystolic < previous.bloodPressureSystolic
+            ? 'down'
+            : 'stable',
     };
   }
 
@@ -664,8 +672,12 @@ function calculateHealthTrends(vitals) {
     trends.weight = {
       current: latest.weight,
       change: (latest.weight - previous.weight).toFixed(1),
-      trend: latest.weight > previous.weight ? 'up' : 
-             latest.weight < previous.weight ? 'down' : 'stable'
+      trend:
+        latest.weight > previous.weight
+          ? 'up'
+          : latest.weight < previous.weight
+            ? 'down'
+            : 'stable',
     };
   }
 

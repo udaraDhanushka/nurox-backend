@@ -13,17 +13,26 @@ const storage = multer.memoryStorage();
 const upload = multer({
   storage,
   limits: {
-    fileSize: 10 * 1024 * 1024 // 10MB limit
+    fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
     // Allow images and PDFs
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    const allowedTypes = [
+      'image/jpeg',
+      'image/png',
+      'image/gif',
+      'application/pdf',
+    ];
     if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file type. Only JPEG, PNG, GIF, and PDF files are allowed.'));
+      cb(
+        new Error(
+          'Invalid file type. Only JPEG, PNG, GIF, and PDF files are allowed.'
+        )
+      );
     }
-  }
+  },
 });
 
 const fileController = {
@@ -36,7 +45,7 @@ const fileController = {
       if (!req.file) {
         return res.status(400).json({
           success: false,
-          message: 'No file uploaded'
+          message: 'No file uploaded',
         });
       }
 
@@ -45,7 +54,7 @@ const fileController = {
         title,
         description,
         prescriptionId,
-        isPublic = false
+        isPublic = false,
       } = req.body;
 
       // Generate unique filename
@@ -65,7 +74,7 @@ const fileController = {
         processedBuffer = await sharp(req.file.buffer)
           .resize(2000, 2000, {
             fit: 'inside',
-            withoutEnlargement: true
+            withoutEnlargement: true,
           })
           .jpeg({ quality: 85 })
           .toBuffer();
@@ -90,9 +99,9 @@ const fileController = {
           metadata: {
             originalName: req.file.originalname,
             uploadedBy: req.user.id,
-            processed: req.file.mimetype.startsWith('image/')
-          }
-        }
+            processed: req.file.mimetype.startsWith('image/'),
+          },
+        },
       });
 
       logger.info(`File uploaded: ${filename} by ${req.user.email}`);
@@ -106,14 +115,14 @@ const fileController = {
           originalName: req.file.originalname,
           size: document.fileSize,
           type: document.type,
-          url: `/api/files/${document.id}/download`
-        }
+          url: `/api/files/${document.id}/download`,
+        },
       });
     } catch (error) {
       logger.error('Upload file error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to upload file'
+        message: 'Failed to upload file',
       });
     }
   },
@@ -121,12 +130,7 @@ const fileController = {
   // Get user files
   getFiles: async (req, res) => {
     try {
-      const {
-        type,
-        prescriptionId,
-        page = 1,
-        limit = 20
-      } = req.query;
+      const { type, prescriptionId, page = 1, limit = 20 } = req.query;
 
       const skip = (page - 1) * limit;
       const where = { userId: req.user.id };
@@ -148,20 +152,22 @@ const fileController = {
             uploadedAt: true,
             isPublic: true,
             metadata: true,
-            prescriptionId: true
+            prescriptionId: true,
           },
           orderBy: { uploadedAt: 'desc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.document.count({ where })
+        prisma.document.count({ where }),
       ]);
 
       // Add download URLs
-      const filesWithUrls = files.map(file => ({
+      const filesWithUrls = files.map((file) => ({
         ...file,
         downloadUrl: `/api/files/${file.id}/download`,
-        thumbnailUrl: file.mimeType.startsWith('image/') ? `/api/files/${file.id}/thumbnail` : null
+        thumbnailUrl: file.mimeType.startsWith('image/')
+          ? `/api/files/${file.id}/thumbnail`
+          : null,
       }));
 
       res.json({
@@ -172,15 +178,15 @@ const fileController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get files error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get files'
+        message: 'Failed to get files',
       });
     }
   },
@@ -191,13 +197,13 @@ const fileController = {
       const { id } = req.params;
 
       const document = await prisma.document.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!document) {
         return res.status(404).json({
           success: false,
-          message: 'File not found'
+          message: 'File not found',
         });
       }
 
@@ -205,7 +211,7 @@ const fileController = {
       if (document.userId !== req.user.id && !document.isPublic) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -215,13 +221,16 @@ const fileController = {
       } catch (error) {
         return res.status(404).json({
           success: false,
-          message: 'File not found on server'
+          message: 'File not found on server',
         });
       }
 
       // Set appropriate headers
       res.setHeader('Content-Type', document.mimeType);
-      res.setHeader('Content-Disposition', `attachment; filename="${document.fileName}"`);
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${document.fileName}"`
+      );
       res.setHeader('Content-Length', document.fileSize);
 
       // Stream file
@@ -233,7 +242,7 @@ const fileController = {
       logger.error('Download file error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to download file'
+        message: 'Failed to download file',
       });
     }
   },
@@ -245,13 +254,13 @@ const fileController = {
       const { width = 200, height = 200 } = req.query;
 
       const document = await prisma.document.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!document) {
         return res.status(404).json({
           success: false,
-          message: 'File not found'
+          message: 'File not found',
         });
       }
 
@@ -259,7 +268,7 @@ const fileController = {
       if (document.userId !== req.user.id && !document.isPublic) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -267,7 +276,7 @@ const fileController = {
       if (!document.mimeType.startsWith('image/')) {
         return res.status(400).json({
           success: false,
-          message: 'Thumbnails are only available for images'
+          message: 'Thumbnails are only available for images',
         });
       }
 
@@ -275,7 +284,7 @@ const fileController = {
       const thumbnail = await sharp(document.filePath)
         .resize(parseInt(width), parseInt(height), {
           fit: 'cover',
-          position: 'center'
+          position: 'center',
         })
         .jpeg({ quality: 80 })
         .toBuffer();
@@ -287,7 +296,7 @@ const fileController = {
       logger.error('Get thumbnail error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to generate thumbnail'
+        message: 'Failed to generate thumbnail',
       });
     }
   },
@@ -298,13 +307,13 @@ const fileController = {
       const { id } = req.params;
 
       const document = await prisma.document.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!document) {
         return res.status(404).json({
           success: false,
-          message: 'File not found'
+          message: 'File not found',
         });
       }
 
@@ -312,7 +321,7 @@ const fileController = {
       if (document.userId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -325,20 +334,20 @@ const fileController = {
 
       // Delete document record
       await prisma.document.delete({
-        where: { id }
+        where: { id },
       });
 
       logger.info(`File deleted: ${document.fileName} by ${req.user.email}`);
 
       res.json({
         success: true,
-        message: 'File deleted successfully'
+        message: 'File deleted successfully',
       });
     } catch (error) {
       logger.error('Delete file error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete file'
+        message: 'Failed to delete file',
       });
     }
   },
@@ -350,13 +359,13 @@ const fileController = {
       const { title, description, type, isPublic } = req.body;
 
       const document = await prisma.document.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!document) {
         return res.status(404).json({
           success: false,
-          message: 'File not found'
+          message: 'File not found',
         });
       }
 
@@ -364,7 +373,7 @@ const fileController = {
       if (document.userId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -376,7 +385,7 @@ const fileController = {
 
       const updatedDocument = await prisma.document.update({
         where: { id },
-        data: updateData
+        data: updateData,
       });
 
       logger.info(`File metadata updated: ${id} by ${req.user.email}`);
@@ -384,13 +393,13 @@ const fileController = {
       res.json({
         success: true,
         message: 'File updated successfully',
-        data: updatedDocument
+        data: updatedDocument,
       });
     } catch (error) {
       logger.error('Update file error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update file'
+        message: 'Failed to update file',
       });
     }
   },
@@ -399,7 +408,7 @@ const fileController = {
   getFileAnalytics: async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       const where = { userId: req.user.id };
 
       if (startDate || endDate) {
@@ -408,58 +417,54 @@ const fileController = {
         if (endDate) where.uploadedAt.lte = new Date(endDate);
       }
 
-      const [
-        totalFiles,
-        totalSize,
-        filesByType,
-        recentUploads
-      ] = await Promise.all([
-        prisma.document.count({ where }),
-        prisma.document.aggregate({
-          where,
-          _sum: { fileSize: true }
-        }),
-        prisma.document.groupBy({
-          by: ['type'],
-          where,
-          _count: { type: true },
-          _sum: { fileSize: true }
-        }),
-        prisma.document.findMany({
-          where,
-          select: {
-            id: true,
-            title: true,
-            type: true,
-            fileSize: true,
-            uploadedAt: true
-          },
-          orderBy: { uploadedAt: 'desc' },
-          take: 10
-        })
-      ]);
+      const [totalFiles, totalSize, filesByType, recentUploads] =
+        await Promise.all([
+          prisma.document.count({ where }),
+          prisma.document.aggregate({
+            where,
+            _sum: { fileSize: true },
+          }),
+          prisma.document.groupBy({
+            by: ['type'],
+            where,
+            _count: { type: true },
+            _sum: { fileSize: true },
+          }),
+          prisma.document.findMany({
+            where,
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              fileSize: true,
+              uploadedAt: true,
+            },
+            orderBy: { uploadedAt: 'desc' },
+            take: 10,
+          }),
+        ]);
 
       res.json({
         success: true,
         data: {
           totalFiles,
           totalSize: totalSize._sum.fileSize || 0,
-          filesByType: filesByType.map(item => ({
+          filesByType: filesByType.map((item) => ({
             type: item.type,
             count: item._count.type,
-            totalSize: item._sum.fileSize || 0
+            totalSize: item._sum.fileSize || 0,
           })),
-          recentUploads
-        }
+          recentUploads,
+        },
       });
     } catch (error) {
       logger.error('Get file analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get file analytics'
+        message: 'Failed to get file analytics',
       });
     }
-  }
+  },
 };
 
 module.exports = fileController;

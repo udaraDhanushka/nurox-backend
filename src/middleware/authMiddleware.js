@@ -6,19 +6,19 @@ const prisma = new PrismaClient();
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        message: 'Access token required'
+        message: 'Access token required',
       });
     }
 
     const token = authHeader.substring(7);
-    
+
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
+
       // Check if session exists and is valid
       const session = await prisma.session.findUnique({
         where: { token },
@@ -32,44 +32,44 @@ const authMiddleware = async (req, res, next) => {
               hospital: true,
               pharmacy: true,
               laboratory: true,
-              insuranceCompany: true
-            }
-          }
-        }
+              insuranceCompany: true,
+            },
+          },
+        },
       });
 
       if (!session || session.expiresAt < new Date()) {
         return res.status(401).json({
           success: false,
-          message: 'Invalid or expired token'
+          message: 'Invalid or expired token',
         });
       }
 
       if (!session.user.isActive) {
         return res.status(401).json({
           success: false,
-          message: 'Account is disabled'
+          message: 'Account is disabled',
         });
       }
 
       req.user = session.user;
       req.sessionId = session.id;
-      
+
       // Set user role header for Next.js middleware
       res.setHeader('x-user-role', session.user.role);
-      
+
       next();
     } catch (jwtError) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid token'
+        message: 'Invalid token',
       });
     }
   } catch (error) {
     console.error('Auth middleware error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Authentication error'
+      message: 'Authentication error',
     });
   }
 };
@@ -80,14 +80,14 @@ const requireRole = (...allowedRoles) => {
     if (!req.user) {
       return res.status(401).json({
         success: false,
-        message: 'Authentication required'
+        message: 'Authentication required',
       });
     }
 
     if (!allowedRoles.includes(req.user.role)) {
       return res.status(403).json({
         success: false,
-        message: 'Access denied. Insufficient permissions.'
+        message: 'Access denied. Insufficient permissions.',
       });
     }
 
@@ -99,16 +99,16 @@ const requireRole = (...allowedRoles) => {
 const optionalAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return next();
     }
 
     const token = authHeader.substring(7);
-    
+
     try {
       jwt.verify(token, process.env.JWT_SECRET);
-      
+
       const session = await prisma.session.findUnique({
         where: { token },
         include: {
@@ -121,10 +121,10 @@ const optionalAuth = async (req, res, next) => {
               hospital: true,
               pharmacy: true,
               laboratory: true,
-              insuranceCompany: true
-            }
-          }
-        }
+              insuranceCompany: true,
+            },
+          },
+        },
       });
 
       if (session && session.expiresAt >= new Date() && session.user.isActive) {
@@ -137,12 +137,12 @@ const optionalAuth = async (req, res, next) => {
   } catch (error) {
     // Ignore errors for optional auth
   }
-  
+
   next();
 };
 
 module.exports = {
   authMiddleware,
   requireRole,
-  optionalAuth
+  optionalAuth,
 };

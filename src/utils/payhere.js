@@ -5,14 +5,15 @@ class PayHereService {
   constructor() {
     this.merchantId = process.env.PAYHERE_MERCHANT_ID;
     this.merchantSecret = process.env.PAYHERE_MERCHANT_SECRET;
-    this.baseURL = process.env.PAYHERE_SANDBOX === 'true' 
-      ? 'https://sandbox.payhere.lk' 
-      : 'https://www.payhere.lk';
+    this.baseURL =
+      process.env.PAYHERE_SANDBOX === 'true'
+        ? 'https://sandbox.payhere.lk'
+        : 'https://www.payhere.lk';
     this.currency = 'LKR';
     this.notifyURL = `${process.env.BASE_URL}/api/payments/payhere-webhook`;
     this.returnURL = 'nurox://payments/success';
     this.cancelURL = 'nurox://payments/cancel';
-    
+
     // Validate required environment variables
     if (!this.merchantId || !this.merchantSecret) {
       throw new Error('PayHere merchant ID and secret are required');
@@ -32,19 +33,25 @@ class PayHereService {
         currency = this.currency,
         recurrence = '',
         duration = '',
-        startupFee = ''
+        startupFee = '',
       } = paymentData;
 
       // Format amount to 2 decimal places
       const formattedAmount = parseFloat(amount).toFixed(2);
-      const formattedStartupFee = startupFee ? parseFloat(startupFee).toFixed(2) : '';
+      const formattedStartupFee = startupFee
+        ? parseFloat(startupFee).toFixed(2)
+        : '';
 
       // FIXED: Hash the merchant secret first according to PayHere specification
-      const hashedSecret = crypto.createHash('md5').update(this.merchantSecret).digest('hex').toUpperCase();
-      
+      const hashedSecret = crypto
+        .createHash('md5')
+        .update(this.merchantSecret)
+        .digest('hex')
+        .toUpperCase();
+
       // Create hash string according to PayHere documentation
       let hashString = '';
-      
+
       if (recurrence && duration) {
         // For recurring payments
         hashString = `${this.merchantId}${orderId}${formattedAmount}${currency}${recurrence}${duration}${formattedStartupFee}${hashedSecret}`;
@@ -54,15 +61,19 @@ class PayHereService {
       }
 
       // Generate MD5 hash and convert to uppercase
-      const hash = crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
-      
+      const hash = crypto
+        .createHash('md5')
+        .update(hashString)
+        .digest('hex')
+        .toUpperCase();
+
       logger.info(`PayHere hash generated for order: ${orderId}`, {
         merchantId: this.merchantId,
         orderId,
         formattedAmount,
         currency,
         hashedSecretPrefix: hashedSecret.substring(0, 8) + '...',
-        finalHash: hash
+        finalHash: hash,
       });
       return hash;
     } catch (error) {
@@ -85,31 +96,44 @@ class PayHereService {
         payhere_amount,
         payhere_currency,
         status_code,
-        md5sig
+        md5sig,
       } = notificationData;
 
       // FIXED: Hash the merchant secret first for webhook verification
-      const hashedSecret = crypto.createHash('md5').update(this.merchantSecret).digest('hex').toUpperCase();
-      
+      const hashedSecret = crypto
+        .createHash('md5')
+        .update(this.merchantSecret)
+        .digest('hex')
+        .toUpperCase();
+
       // Create verification hash string
       const hashString = `${merchant_id}${order_id}${payhere_amount}${payhere_currency}${status_code}${hashedSecret}`;
-      const calculatedHash = crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
+      const calculatedHash = crypto
+        .createHash('md5')
+        .update(hashString)
+        .digest('hex')
+        .toUpperCase();
 
       const isValid = calculatedHash === md5sig;
-      
+
       if (isValid) {
-        logger.info(`PayHere notification hash verified for order: ${order_id}, payment: ${payment_id}`);
+        logger.info(
+          `PayHere notification hash verified for order: ${order_id}, payment: ${payment_id}`
+        );
       } else {
-        logger.warn(`PayHere notification hash verification failed for order: ${order_id}`, {
-          merchant_id,
-          order_id,
-          payhere_amount,
-          payhere_currency,
-          status_code,
-          hashedSecretPrefix: hashedSecret.substring(0, 8) + '...',
-          calculatedHash,
-          receivedHash: md5sig
-        });
+        logger.warn(
+          `PayHere notification hash verification failed for order: ${order_id}`,
+          {
+            merchant_id,
+            order_id,
+            payhere_amount,
+            payhere_currency,
+            status_code,
+            hashedSecretPrefix: hashedSecret.substring(0, 8) + '...',
+            calculatedHash,
+            receivedHash: md5sig,
+          }
+        );
       }
 
       return isValid;
@@ -139,7 +163,7 @@ class PayHereService {
         country = 'Sri Lanka',
         recurrence = '',
         duration = '',
-        startupFee = 0
+        startupFee = 0,
       } = paymentData;
 
       // Generate hash
@@ -149,7 +173,7 @@ class PayHereService {
         currency: this.currency,
         recurrence,
         duration,
-        startupFee
+        startupFee,
       });
 
       const formData = {
@@ -168,7 +192,7 @@ class PayHereService {
         address,
         city,
         country,
-        hash
+        hash,
       };
 
       // Add recurring payment fields if applicable
@@ -195,8 +219,8 @@ class PayHereService {
    */
   getPaymentStatus(statusCode) {
     const statusMap = {
-      '2': { status: 'COMPLETED', message: 'Success' },
-      '0': { status: 'PENDING', message: 'Pending' },
+      2: { status: 'COMPLETED', message: 'Success' },
+      0: { status: 'PENDING', message: 'Pending' },
       '-1': { status: 'CANCELLED', message: 'Canceled' },
       '-2': { status: 'FAILED', message: 'Failed' },
       '-3': { status: 'FAILED', message: 'Chargedback' },
@@ -204,10 +228,12 @@ class PayHereService {
       '-5': { status: 'FAILED', message: 'Invalid merchant' },
       '-6': { status: 'FAILED', message: 'Invalid parameters' },
       '-7': { status: 'FAILED', message: 'Invalid hash' },
-      '-8': { status: 'FAILED', message: 'Duplicate order ID' }
+      '-8': { status: 'FAILED', message: 'Duplicate order ID' },
     };
 
-    return statusMap[statusCode] || { status: 'FAILED', message: 'Unknown status' };
+    return (
+      statusMap[statusCode] || { status: 'FAILED', message: 'Unknown status' }
+    );
   }
 
   /**
@@ -218,13 +244,15 @@ class PayHereService {
     const requiredFields = [
       'PAYHERE_MERCHANT_ID',
       'PAYHERE_MERCHANT_SECRET',
-      'BASE_URL'
+      'BASE_URL',
     ];
 
-    const missingFields = requiredFields.filter(field => !process.env[field]);
-    
+    const missingFields = requiredFields.filter((field) => !process.env[field]);
+
     if (missingFields.length > 0) {
-      logger.error(`PayHere configuration missing fields: ${missingFields.join(', ')}`);
+      logger.error(
+        `PayHere configuration missing fields: ${missingFields.join(', ')}`
+      );
       return false;
     }
 

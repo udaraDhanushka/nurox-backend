@@ -9,10 +9,12 @@ const crypto = require('crypto');
 // Test data that matches mobile app test
 const testData = {
   merchantId: process.env.PAYHERE_MERCHANT_ID || '1231130',
-  merchantSecret: process.env.PAYHERE_MERCHANT_SECRET || 'MTQ3NDkyMzE0MjcyODc3MjQ3MzE1OTAyMDMzOTk1MDg1MTEyODY=',
+  merchantSecret:
+    process.env.PAYHERE_MERCHANT_SECRET ||
+    'MTQ3NDkyMzE0MjcyODc3MjQ3MzE1OTAyMDMzOTk1MDg1MTEyODY=',
   orderId: 'ORDER_001',
   amount: '1000.00',
-  currency: 'LKR'
+  currency: 'LKR',
 };
 
 console.log('=== PayHere Hash Generation Test ===');
@@ -21,25 +23,37 @@ console.log('Test Data:', {
   orderId: testData.orderId,
   amount: testData.amount,
   currency: testData.currency,
-  merchantSecretLength: testData.merchantSecret.length
+  merchantSecretLength: testData.merchantSecret.length,
 });
 
 // OLD METHOD (what was wrong)
 function generateOldHash(data) {
   const hashString = `${data.merchantId}${data.orderId}${data.amount}${data.currency}${data.merchantSecret}`;
-  return crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
+  return crypto
+    .createHash('md5')
+    .update(hashString)
+    .digest('hex')
+    .toUpperCase();
 }
 
 // NEW METHOD (corrected)
 function generateNewHash(data) {
   // Step 1: Hash merchant secret
-  const hashedSecret = crypto.createHash('md5').update(data.merchantSecret).digest('hex').toUpperCase();
-  
+  const hashedSecret = crypto
+    .createHash('md5')
+    .update(data.merchantSecret)
+    .digest('hex')
+    .toUpperCase();
+
   // Step 2: Create hash string with hashed secret
   const hashString = `${data.merchantId}${data.orderId}${data.amount}${data.currency}${hashedSecret}`;
-  
+
   // Step 3: Generate final hash
-  return crypto.createHash('md5').update(hashString).digest('hex').toUpperCase();
+  return crypto
+    .createHash('md5')
+    .update(hashString)
+    .digest('hex')
+    .toUpperCase();
 }
 
 const oldHash = generateOldHash(testData);
@@ -56,16 +70,18 @@ try {
   const serviceHash = payHereService.generateHash({
     orderId: testData.orderId,
     amount: parseFloat(testData.amount),
-    currency: testData.currency
+    currency: testData.currency,
   });
-  
+
   console.log('\n=== Service Test ===');
   console.log('Service Hash:', serviceHash);
   console.log('Matches NEW Hash?:', serviceHash === newHash);
   console.log('Matches OLD Hash?:', serviceHash === oldHash);
-  
+
   if (serviceHash === newHash) {
-    console.log('✅ SUCCESS: Backend service is now generating correct hashes!');
+    console.log(
+      '✅ SUCCESS: Backend service is now generating correct hashes!'
+    );
   } else if (serviceHash === oldHash) {
     console.log('❌ ERROR: Backend service is still using old hash method!');
   } else {

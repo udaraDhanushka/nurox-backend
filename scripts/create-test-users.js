@@ -24,8 +24,8 @@ async function createTestUsers() {
         phone: '+1234567890',
         isActive: true,
         emailVerified: true,
-        phoneVerified: true
-      }
+        phoneVerified: true,
+      },
     });
     console.log(`✅ Super Admin created: ${superAdmin.email}`);
 
@@ -41,8 +41,15 @@ async function createTestUsers() {
         phone: '+1234567891',
         email: 'admin@nuroxhospital.com',
         website: 'https://nuroxhospital.com',
-        description: 'Premier healthcare facility with advanced medical services',
-        specialties: ['Cardiology', 'Neurology', 'Pediatrics', 'Emergency Medicine', 'Surgery'],
+        description:
+          'Premier healthcare facility with advanced medical services',
+        specialties: [
+          'Cardiology',
+          'Neurology',
+          'Pediatrics',
+          'Emergency Medicine',
+          'Surgery',
+        ],
         bedCount: 200,
         emergencyServices: true,
         licenseNumber: 'LIC-HOSP-001',
@@ -51,8 +58,8 @@ async function createTestUsers() {
         contactPerson: 'Dr. Jane Smith',
         contactPhone: '+1234567892',
         contactEmail: 'jane.smith@nuroxhospital.com',
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     });
     console.log(`✅ Hospital created: ${testHospital.name}`);
 
@@ -71,8 +78,8 @@ async function createTestUsers() {
         hospitalId: testHospital.id,
         isActive: true,
         emailVerified: true,
-        phoneVerified: true
-      }
+        phoneVerified: true,
+      },
     });
     console.log(`✅ Hospital Admin created: ${hospitalAdmin.email}`);
 
@@ -96,15 +103,15 @@ async function createTestUsers() {
           thursday: '24/7',
           friday: '24/7',
           saturday: '24/7',
-          sunday: '24/7'
+          sunday: '24/7',
         },
         licenseNumber: 'LIC-PHARM-001',
         licenseExpiry: new Date('2025-12-31'),
         contactPerson: 'PharmD John Doe',
         contactPhone: '+1234567895',
         contactEmail: 'john.doe@nuroxpharmacy.com',
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     });
     console.log(`✅ Pharmacy created: ${testPharmacy.name}`);
 
@@ -123,8 +130,8 @@ async function createTestUsers() {
         pharmacyId: testPharmacy.id,
         isActive: true,
         emailVerified: true,
-        phoneVerified: true
-      }
+        phoneVerified: true,
+      },
     });
     console.log(`✅ Pharmacy Admin created: ${pharmacyAdmin.email}`);
 
@@ -140,8 +147,16 @@ async function createTestUsers() {
         phone: '+1234567897',
         email: 'admin@nuroxlab.com',
         website: 'https://nuroxlab.com',
-        description: 'Advanced diagnostic laboratory with state-of-the-art equipment',
-        testTypes: ['Blood Tests', 'Urine Analysis', 'X-Ray', 'MRI', 'CT Scan', 'Pathology'],
+        description:
+          'Advanced diagnostic laboratory with state-of-the-art equipment',
+        testTypes: [
+          'Blood Tests',
+          'Urine Analysis',
+          'X-Ray',
+          'MRI',
+          'CT Scan',
+          'Pathology',
+        ],
         operatingHours: {
           monday: '6:00 AM - 10:00 PM',
           tuesday: '6:00 AM - 10:00 PM',
@@ -149,7 +164,7 @@ async function createTestUsers() {
           thursday: '6:00 AM - 10:00 PM',
           friday: '6:00 AM - 10:00 PM',
           saturday: '8:00 AM - 6:00 PM',
-          sunday: '8:00 AM - 4:00 PM'
+          sunday: '8:00 AM - 4:00 PM',
         },
         licenseNumber: 'LIC-LAB-001',
         licenseExpiry: new Date('2025-12-31'),
@@ -157,8 +172,8 @@ async function createTestUsers() {
         contactPerson: 'Dr. Maria Rodriguez',
         contactPhone: '+1234567898',
         contactEmail: 'maria.rodriguez@nuroxlab.com',
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     });
     console.log(`✅ Laboratory created: ${testLab.name}`);
 
@@ -177,8 +192,8 @@ async function createTestUsers() {
         laboratoryId: testLab.id,
         isActive: true,
         emailVerified: true,
-        phoneVerified: true
-      }
+        phoneVerified: true,
+      },
     });
     console.log(`✅ Lab Admin created: ${labAdmin.email}`);
 
@@ -195,14 +210,20 @@ async function createTestUsers() {
         email: 'admin@nuroxinsurance.com',
         website: 'https://nuroxinsurance.com',
         description: 'Comprehensive health insurance coverage',
-        coverageTypes: ['Health', 'Dental', 'Vision', 'Prescription', 'Emergency'],
+        coverageTypes: [
+          'Health',
+          'Dental',
+          'Vision',
+          'Prescription',
+          'Emergency',
+        ],
         licenseNumber: 'LIC-INS-001',
         licenseExpiry: new Date('2025-12-31'),
         contactPerson: 'Sarah Johnson',
         contactPhone: '+1234567801',
         contactEmail: 'sarah.johnson@nuroxinsurance.com',
-        status: 'ACTIVE'
-      }
+        status: 'ACTIVE',
+      },
     });
     console.log(`✅ Insurance Company created: ${testInsurance.name}`);
 
@@ -221,8 +242,8 @@ async function createTestUsers() {
         insuranceId: testInsurance.id,
         isActive: true,
         emailVerified: true,
-        phoneVerified: true
-      }
+        phoneVerified: true,
+      },
     });
     console.log(`✅ Insurance Admin created: ${insuranceAdmin.email}`);
 
@@ -246,7 +267,7 @@ async function createTestUsers() {
           create: {
             specialization: 'Cardiology',
             licenseNumber: 'DOC-001-2024',
-            consultationFee: 150.00,
+            consultationFee: 150.0,
             experience: 8,
             qualifications: ['MD', 'FACC', 'Board Certified Cardiologist'],
             availableHours: {
@@ -254,18 +275,23 @@ async function createTestUsers() {
               tuesday: '9:00 AM - 5:00 PM',
               wednesday: '9:00 AM - 5:00 PM',
               thursday: '9:00 AM - 5:00 PM',
-              friday: '9:00 AM - 3:00 PM'
+              friday: '9:00 AM - 3:00 PM',
             },
             rating: 4.8,
             reviewCount: 156,
             isVerified: false,
             verificationStatus: 'PENDING',
-            verificationDocuments: ['medical_license.pdf', 'board_certification.pdf']
-          }
-        }
-      }
+            verificationDocuments: [
+              'medical_license.pdf',
+              'board_certification.pdf',
+            ],
+          },
+        },
+      },
     });
-    console.log(`✅ Doctor created: ${testDoctor.email} (Pending verification)`);
+    console.log(
+      `✅ Doctor created: ${testDoctor.email} (Pending verification)`
+    );
 
     // 11. Create a Test Patient
     console.log('\n👤 Creating test patient...');
@@ -296,10 +322,10 @@ async function createTestUsers() {
             zipCode: '12345',
             country: 'USA',
             insuranceProvider: 'Nurox Health Insurance',
-            insuranceNumber: 'NHS-2024-001'
-          }
-        }
-      }
+            insuranceNumber: 'NHS-2024-001',
+          },
+        },
+      },
     });
     console.log(`✅ Patient created: ${testPatient.email}`);
 
@@ -331,12 +357,12 @@ async function createTestUsers() {
               thursday: '8:00 AM - 8:00 PM',
               friday: '8:00 AM - 8:00 PM',
               saturday: '9:00 AM - 6:00 PM',
-              sunday: '10:00 AM - 4:00 PM'
+              sunday: '10:00 AM - 4:00 PM',
             },
-            isVerified: true
-          }
-        }
-      }
+            isVerified: true,
+          },
+        },
+      },
     });
     console.log(`✅ Pharmacist created: ${testPharmacist.email}`);
 
@@ -359,20 +385,28 @@ async function createTestUsers() {
         mltProfile: {
           create: {
             licenseNumber: 'MLT-001-2024',
-            certifications: ['ASCP Certified', 'Phlebotomy Certified', 'Clinical Chemistry'],
-            specializations: ['Hematology', 'Clinical Chemistry', 'Microbiology'],
+            certifications: [
+              'ASCP Certified',
+              'Phlebotomy Certified',
+              'Clinical Chemistry',
+            ],
+            specializations: [
+              'Hematology',
+              'Clinical Chemistry',
+              'Microbiology',
+            ],
             workingHours: {
               monday: '7:00 AM - 7:00 PM',
               tuesday: '7:00 AM - 7:00 PM',
               wednesday: '7:00 AM - 7:00 PM',
               thursday: '7:00 AM - 7:00 PM',
               friday: '7:00 AM - 7:00 PM',
-              saturday: '8:00 AM - 4:00 PM'
+              saturday: '8:00 AM - 4:00 PM',
             },
-            isVerified: true
-          }
-        }
-      }
+            isVerified: true,
+          },
+        },
+      },
     });
     console.log(`✅ MLT created: ${testMLT.email}`);
 
@@ -390,7 +424,6 @@ async function createTestUsers() {
     console.log('='.repeat(50));
     console.log(`🔑 Password for all accounts: admin123456`);
     console.log('\n✅ All test users and organizations created successfully!');
-
   } catch (error) {
     console.error('❌ Error creating test users:', error);
   } finally {

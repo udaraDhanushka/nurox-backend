@@ -8,7 +8,11 @@ const router = express.Router();
 router.use(authMiddleware);
 
 // File upload and management
-router.post('/upload', fileController.uploadMiddleware, fileController.uploadFile);
+router.post(
+  '/upload',
+  fileController.uploadMiddleware,
+  fileController.uploadFile
+);
 router.get('/', fileController.getFiles);
 router.get('/analytics', fileController.getFileAnalytics);
 router.get('/:id/download', fileController.downloadFile);

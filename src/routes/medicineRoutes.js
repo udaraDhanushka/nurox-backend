@@ -1,7 +1,11 @@
 const express = require('express');
 const medicineController = require('../controllers/medicineController');
 const { authMiddleware } = require('../middleware/authMiddleware');
-const { validate, validateQuery, schemas } = require('../middleware/validation');
+const {
+  validate,
+  validateQuery,
+  schemas,
+} = require('../middleware/validation');
 
 const router = express.Router();
 
@@ -9,7 +13,11 @@ const router = express.Router();
 router.use(authMiddleware);
 
 // Medicine CRUD operations
-router.post('/', validate(schemas.createMedicine), medicineController.createMedicine);
+router.post(
+  '/',
+  validate(schemas.createMedicine),
+  medicineController.createMedicine
+);
 router.get('/', medicineController.getMedicines);
 router.get('/suggestions', medicineController.getMedicineSuggestions);
 router.get('/analytics', medicineController.getMedicineAnalytics);

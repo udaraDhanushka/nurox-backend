@@ -13,21 +13,21 @@ const userController = {
         include: {
           patientProfile: true,
           doctorProfile: true,
-          pharmacistProfile: true
-        }
+          pharmacistProfile: true,
+        },
       });
 
       const { password: _, ...userWithoutPassword } = user;
 
       res.json({
         success: true,
-        data: userWithoutPassword
+        data: userWithoutPassword,
       });
     } catch (error) {
       logger.error('Get profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get profile'
+        message: 'Failed to get profile',
       });
     }
   },
@@ -35,14 +35,22 @@ const userController = {
   // Update user profile
   updateProfile: async (req, res) => {
     try {
-      const { firstName, lastName, phone, dateOfBirth, profileImage, language } = req.body;
+      const {
+        firstName,
+        lastName,
+        phone,
+        dateOfBirth,
+        profileImage,
+        language,
+      } = req.body;
 
       const updateData = {};
-      
+
       if (firstName !== undefined) updateData.firstName = firstName;
       if (lastName !== undefined) updateData.lastName = lastName;
       if (phone !== undefined) updateData.phone = phone;
-      if (dateOfBirth !== undefined) updateData.dateOfBirth = new Date(dateOfBirth);
+      if (dateOfBirth !== undefined)
+        updateData.dateOfBirth = new Date(dateOfBirth);
       if (profileImage !== undefined) updateData.profileImage = profileImage;
       if (language !== undefined) updateData.language = language;
 
@@ -52,8 +60,8 @@ const userController = {
         include: {
           patientProfile: true,
           doctorProfile: true,
-          pharmacistProfile: true
-        }
+          pharmacistProfile: true,
+        },
       });
 
       const { password: _, ...userWithoutPassword } = updatedUser;
@@ -63,13 +71,13 @@ const userController = {
       res.json({
         success: true,
         message: 'Profile updated successfully',
-        data: userWithoutPassword
+        data: userWithoutPassword,
       });
     } catch (error) {
       logger.error('Update profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update profile'
+        message: 'Failed to update profile',
       });
     }
   },
@@ -80,7 +88,7 @@ const userController = {
       if (req.user.role !== 'PATIENT') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Patient role required.'
+          message: 'Access denied. Patient role required.',
         });
       }
 
@@ -96,12 +104,14 @@ const userController = {
         zipCode,
         country,
         insuranceProvider,
-        insuranceNumber
+        insuranceNumber,
       } = req.body;
 
       const updateData = {};
-      if (emergencyContact !== undefined) updateData.emergencyContact = emergencyContact;
-      if (emergencyPhone !== undefined) updateData.emergencyPhone = emergencyPhone;
+      if (emergencyContact !== undefined)
+        updateData.emergencyContact = emergencyContact;
+      if (emergencyPhone !== undefined)
+        updateData.emergencyPhone = emergencyPhone;
       if (bloodType !== undefined) updateData.bloodType = bloodType;
       if (height !== undefined) updateData.height = height;
       if (weight !== undefined) updateData.weight = weight;
@@ -110,16 +120,18 @@ const userController = {
       if (city !== undefined) updateData.city = city;
       if (zipCode !== undefined) updateData.zipCode = zipCode;
       if (country !== undefined) updateData.country = country;
-      if (insuranceProvider !== undefined) updateData.insuranceProvider = insuranceProvider;
-      if (insuranceNumber !== undefined) updateData.insuranceNumber = insuranceNumber;
+      if (insuranceProvider !== undefined)
+        updateData.insuranceProvider = insuranceProvider;
+      if (insuranceNumber !== undefined)
+        updateData.insuranceNumber = insuranceNumber;
 
       const updatedProfile = await prisma.patientProfile.upsert({
         where: { userId: req.user.id },
         update: updateData,
         create: {
           userId: req.user.id,
-          ...updateData
-        }
+          ...updateData,
+        },
       });
 
       logger.info(`Patient profile updated for user: ${req.user.email}`);
@@ -127,13 +139,13 @@ const userController = {
       res.json({
         success: true,
         message: 'Patient profile updated successfully',
-        data: updatedProfile
+        data: updatedProfile,
       });
     } catch (error) {
       logger.error('Update patient profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update patient profile'
+        message: 'Failed to update patient profile',
       });
     }
   },
@@ -144,7 +156,7 @@ const userController = {
       if (req.user.role !== 'DOCTOR') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Doctor role required.'
+          message: 'Access denied. Doctor role required.',
         });
       }
 
@@ -156,18 +168,23 @@ const userController = {
         consultationFee,
         experience,
         qualifications,
-        availableHours
+        availableHours,
       } = req.body;
 
       const updateData = {};
-      if (specialization !== undefined) updateData.specialization = specialization;
+      if (specialization !== undefined)
+        updateData.specialization = specialization;
       if (licenseNumber !== undefined) updateData.licenseNumber = licenseNumber;
-      if (hospitalAffiliation !== undefined) updateData.hospitalAffiliation = hospitalAffiliation;
+      if (hospitalAffiliation !== undefined)
+        updateData.hospitalAffiliation = hospitalAffiliation;
       if (clinicAddress !== undefined) updateData.clinicAddress = clinicAddress;
-      if (consultationFee !== undefined) updateData.consultationFee = consultationFee;
+      if (consultationFee !== undefined)
+        updateData.consultationFee = consultationFee;
       if (experience !== undefined) updateData.experience = experience;
-      if (qualifications !== undefined) updateData.qualifications = qualifications;
-      if (availableHours !== undefined) updateData.availableHours = availableHours;
+      if (qualifications !== undefined)
+        updateData.qualifications = qualifications;
+      if (availableHours !== undefined)
+        updateData.availableHours = availableHours;
 
       const updatedProfile = await prisma.doctorProfile.upsert({
         where: { userId: req.user.id },
@@ -176,8 +193,8 @@ const userController = {
           userId: req.user.id,
           specialization: specialization || 'General Practice',
           licenseNumber: licenseNumber || `DOC${Date.now()}`,
-          ...updateData
-        }
+          ...updateData,
+        },
       });
 
       logger.info(`Doctor profile updated for user: ${req.user.email}`);
@@ -185,13 +202,13 @@ const userController = {
       res.json({
         success: true,
         message: 'Doctor profile updated successfully',
-        data: updatedProfile
+        data: updatedProfile,
       });
     } catch (error) {
       logger.error('Update doctor profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update doctor profile'
+        message: 'Failed to update doctor profile',
       });
     }
   },
@@ -202,7 +219,7 @@ const userController = {
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
@@ -210,13 +227,15 @@ const userController = {
         licenseNumber,
         pharmacyAffiliation,
         pharmacyAddress,
-        workingHours
+        workingHours,
       } = req.body;
 
       const updateData = {};
       if (licenseNumber !== undefined) updateData.licenseNumber = licenseNumber;
-      if (pharmacyAffiliation !== undefined) updateData.pharmacyAffiliation = pharmacyAffiliation;
-      if (pharmacyAddress !== undefined) updateData.pharmacyAddress = pharmacyAddress;
+      if (pharmacyAffiliation !== undefined)
+        updateData.pharmacyAffiliation = pharmacyAffiliation;
+      if (pharmacyAddress !== undefined)
+        updateData.pharmacyAddress = pharmacyAddress;
       if (workingHours !== undefined) updateData.workingHours = workingHours;
 
       const updatedProfile = await prisma.pharmacistProfile.upsert({
@@ -225,8 +244,8 @@ const userController = {
         create: {
           userId: req.user.id,
           licenseNumber: licenseNumber || `PHARM${Date.now()}`,
-          ...updateData
-        }
+          ...updateData,
+        },
       });
 
       logger.info(`Pharmacist profile updated for user: ${req.user.email}`);
@@ -234,13 +253,13 @@ const userController = {
       res.json({
         success: true,
         message: 'Pharmacist profile updated successfully',
-        data: updatedProfile
+        data: updatedProfile,
       });
     } catch (error) {
       logger.error('Update pharmacist profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update pharmacist profile'
+        message: 'Failed to update pharmacist profile',
       });
     }
   },
@@ -251,28 +270,29 @@ const userController = {
       const includeData = {
         patientProfile: req.user.role === 'PATIENT',
         doctorProfile: req.user.role === 'DOCTOR',
-        pharmacistProfile: req.user.role === 'PHARMACIST'
+        pharmacistProfile: req.user.role === 'PHARMACIST',
       };
 
       const user = await prisma.user.findUnique({
         where: { id: req.user.id },
-        include: includeData
+        include: includeData,
       });
 
-      const roleProfile = user.patientProfile || user.doctorProfile || user.pharmacistProfile;
+      const roleProfile =
+        user.patientProfile || user.doctorProfile || user.pharmacistProfile;
 
       res.json({
         success: true,
         data: {
           role: req.user.role,
-          profile: roleProfile
-        }
+          profile: roleProfile,
+        },
       });
     } catch (error) {
       logger.error('Get role-specific data error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get role-specific data'
+        message: 'Failed to get role-specific data',
       });
     }
   },
@@ -284,40 +304,40 @@ const userController = {
 
       // Verify password before deletion
       const user = await prisma.user.findUnique({
-        where: { id: req.user.id }
+        where: { id: req.user.id },
       });
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
-      
+
       if (!isPasswordValid) {
         return res.status(400).json({
           success: false,
-          message: 'Password is incorrect'
+          message: 'Password is incorrect',
         });
       }
 
       // Soft delete by setting isActive to false
       await prisma.user.update({
         where: { id: req.user.id },
-        data: { isActive: false }
+        data: { isActive: false },
       });
 
       // Revoke all sessions
       await prisma.session.deleteMany({
-        where: { userId: req.user.id }
+        where: { userId: req.user.id },
       });
 
       logger.info(`Account deleted for user: ${req.user.email}`);
 
       res.json({
         success: true,
-        message: 'Account deleted successfully'
+        message: 'Account deleted successfully',
       });
     } catch (error) {
       logger.error('Delete account error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete account'
+        message: 'Failed to delete account',
       });
     }
   },
@@ -329,20 +349,22 @@ const userController = {
 
       await prisma.user.update({
         where: { id: req.user.id },
-        data: { language }
+        data: { language },
       });
 
-      logger.info(`Language updated for user: ${req.user.email} to ${language}`);
+      logger.info(
+        `Language updated for user: ${req.user.email} to ${language}`
+      );
 
       res.json({
         success: true,
-        message: 'Language preference updated successfully'
+        message: 'Language preference updated successfully',
       });
     } catch (error) {
       logger.error('Update language error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update language preference'
+        message: 'Failed to update language preference',
       });
     }
   },
@@ -353,28 +375,33 @@ const userController = {
       const { userId } = req.params;
 
       // Verify requester has appropriate access
-      if (req.user.role !== 'DOCTOR' && req.user.role !== 'PHARMACIST' && req.user.role !== 'SUPER_ADMIN') {
+      if (
+        req.user.role !== 'DOCTOR' &&
+        req.user.role !== 'PHARMACIST' &&
+        req.user.role !== 'SUPER_ADMIN'
+      ) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Only doctors, pharmacists, and admins can access patient profiles.'
+          message:
+            'Access denied. Only doctors, pharmacists, and admins can access patient profiles.',
         });
       }
 
       const patient = await prisma.user.findUnique({
-        where: { 
+        where: {
           id: userId,
           role: 'PATIENT',
-          isActive: true
+          isActive: true,
         },
         include: {
-          patientProfile: true
-        }
+          patientProfile: true,
+        },
       });
 
       if (!patient) {
         return res.status(404).json({
           success: false,
-          message: 'Patient not found'
+          message: 'Patient not found',
         });
       }
 
@@ -385,7 +412,10 @@ const userController = {
         const today = new Date();
         age = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
           age--;
         }
       }
@@ -394,23 +424,25 @@ const userController = {
       const responseData = {
         ...userWithoutPassword,
         age,
-        name: `${patient.firstName} ${patient.lastName}`
+        name: `${patient.firstName} ${patient.lastName}`,
       };
 
-      logger.info(`Patient profile accessed: ${userId} by ${req.user.role}: ${req.user.email}`);
+      logger.info(
+        `Patient profile accessed: ${userId} by ${req.user.role}: ${req.user.email}`
+      );
 
       res.json({
         success: true,
-        data: responseData
+        data: responseData,
       });
     } catch (error) {
       logger.error('Get patient profile error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get patient profile'
+        message: 'Failed to get patient profile',
       });
     }
-  }
+  },
 };
 
 module.exports = userController;

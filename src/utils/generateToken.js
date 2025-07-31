@@ -7,18 +7,14 @@ const prisma = new PrismaClient();
 const generateTokens = async (userId) => {
   try {
     // Generate access token
-    const accessToken = jwt.sign(
-      { userId },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-    );
+    const accessToken = jwt.sign({ userId }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    });
 
     // Generate refresh token
-    const refreshToken = jwt.sign(
-      { userId },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
-    );
+    const refreshToken = jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, {
+      expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+    });
 
     // Calculate expiration dates
     const accessTokenExpiry = new Date();
@@ -32,15 +28,15 @@ const generateTokens = async (userId) => {
       data: {
         userId,
         token: accessToken,
-        expiresAt: accessTokenExpiry
-      }
+        expiresAt: accessTokenExpiry,
+      },
     });
 
     return {
       accessToken,
       refreshToken,
       accessTokenExpiry,
-      refreshTokenExpiry
+      refreshTokenExpiry,
     };
   } catch (error) {
     console.error('Error generating tokens:', error);
@@ -60,10 +56,10 @@ const refreshAccessToken = async (refreshToken) => {
   try {
     // Verify refresh token
     const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
-    
+
     // Check if user exists and is active
     const user = await prisma.user.findUnique({
-      where: { id: decoded.userId }
+      where: { id: decoded.userId },
     });
 
     if (!user || !user.isActive) {
@@ -71,11 +67,9 @@ const refreshAccessToken = async (refreshToken) => {
     }
 
     // Generate new access token
-    const accessToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-    );
+    const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN || '24h',
+    });
 
     const accessTokenExpiry = new Date();
     accessTokenExpiry.setHours(accessTokenExpiry.getHours() + 24);
@@ -85,13 +79,13 @@ const refreshAccessToken = async (refreshToken) => {
       data: {
         userId: user.id,
         token: accessToken,
-        expiresAt: accessTokenExpiry
-      }
+        expiresAt: accessTokenExpiry,
+      },
     });
 
     return {
       accessToken,
-      accessTokenExpiry
+      accessTokenExpiry,
     };
   } catch (error) {
     throw new Error('Invalid refresh token');
@@ -101,7 +95,7 @@ const refreshAccessToken = async (refreshToken) => {
 const revokeToken = async (token) => {
   try {
     await prisma.session.delete({
-      where: { token }
+      where: { token },
     });
   } catch (error) {
     // Token might not exist, which is fine
@@ -111,7 +105,7 @@ const revokeToken = async (token) => {
 const revokeAllUserTokens = async (userId) => {
   try {
     await prisma.session.deleteMany({
-      where: { userId }
+      where: { userId },
     });
   } catch (error) {
     console.error('Error revoking user tokens:', error);
@@ -123,11 +117,11 @@ const cleanupExpiredTokens = async () => {
     const result = await prisma.session.deleteMany({
       where: {
         expiresAt: {
-          lt: new Date()
-        }
-      }
+          lt: new Date(),
+        },
+      },
     });
-    
+
     console.log(`Cleaned up ${result.count} expired sessions`);
     return result.count;
   } catch (error) {
@@ -143,5 +137,5 @@ module.exports = {
   refreshAccessToken,
   revokeToken,
   revokeAllUserTokens,
-  cleanupExpiredTokens
+  cleanupExpiredTokens,
 };

@@ -7,19 +7,19 @@ const pharmacyController = {
   // Get nearby pharmacies
   getNearbyPharmacies: async (req, res) => {
     try {
-      const { 
-        latitude, 
-        longitude, 
-        radius = 10, 
+      const {
+        latitude,
+        longitude,
+        radius = 10,
         medicineId,
         page = 1,
-        limit = 20 
+        limit = 20,
       } = req.query;
 
       if (!latitude || !longitude) {
         return res.status(400).json({
           success: false,
-          message: 'Latitude and longitude are required'
+          message: 'Latitude and longitude are required',
         });
       }
 
@@ -34,7 +34,7 @@ const pharmacyController = {
           email: 'info@citypharmacy.com',
           coordinates: {
             latitude: parseFloat(latitude) + 0.01,
-            longitude: parseFloat(longitude) + 0.01
+            longitude: parseFloat(longitude) + 0.01,
           },
           distance: 1.2,
           rating: 4.5,
@@ -42,10 +42,14 @@ const pharmacyController = {
           isOpen: true,
           workingHours: {
             open: '08:00',
-            close: '22:00'
+            close: '22:00',
           },
-          services: ['Prescription Filling', 'Health Consultation', 'Home Delivery'],
-          acceptsInsurance: true
+          services: [
+            'Prescription Filling',
+            'Health Consultation',
+            'Home Delivery',
+          ],
+          acceptsInsurance: true,
         },
         {
           id: 'ph2',
@@ -55,7 +59,7 @@ const pharmacyController = {
           email: 'contact@healthmart.com',
           coordinates: {
             latitude: parseFloat(latitude) + 0.02,
-            longitude: parseFloat(longitude) - 0.01
+            longitude: parseFloat(longitude) - 0.01,
           },
           distance: 2.5,
           rating: 4.3,
@@ -63,10 +67,10 @@ const pharmacyController = {
           isOpen: true,
           workingHours: {
             open: '09:00',
-            close: '21:00'
+            close: '21:00',
           },
           services: ['Prescription Filling', 'Vaccination', 'Health Screening'],
-          acceptsInsurance: true
+          acceptsInsurance: true,
         },
         {
           id: 'ph3',
@@ -76,7 +80,7 @@ const pharmacyController = {
           email: 'info@medplus.com',
           coordinates: {
             latitude: parseFloat(latitude) - 0.01,
-            longitude: parseFloat(longitude) + 0.02
+            longitude: parseFloat(longitude) + 0.02,
           },
           distance: 3.1,
           rating: 4.7,
@@ -84,16 +88,20 @@ const pharmacyController = {
           isOpen: false,
           workingHours: {
             open: '08:30',
-            close: '20:00'
+            close: '20:00',
           },
-          services: ['Prescription Filling', 'Health Consultation', 'Medical Equipment'],
-          acceptsInsurance: true
-        }
+          services: [
+            'Prescription Filling',
+            'Health Consultation',
+            'Medical Equipment',
+          ],
+          acceptsInsurance: true,
+        },
       ];
 
       // Filter by radius
       const filteredPharmacies = mockPharmacies.filter(
-        pharmacy => pharmacy.distance <= parseFloat(radius)
+        (pharmacy) => pharmacy.distance <= parseFloat(radius)
       );
 
       // If medicineId is provided, check availability
@@ -103,22 +111,24 @@ const pharmacyController = {
           where: {
             medicineId,
             isActive: true,
-            quantity: { gt: 0 }
+            quantity: { gt: 0 },
           },
           include: {
             managedBy: {
               select: {
                 id: true,
-                pharmacistProfile: true
-              }
-            }
-          }
+                pharmacistProfile: true,
+              },
+            },
+          },
         });
 
         // Add inventory info to pharmacies
-        filteredPharmacies.forEach(pharmacy => {
-          const inventory = inventoryData.find(item => 
-            item.managedBy.pharmacistProfile?.pharmacyAffiliation === pharmacy.name
+        filteredPharmacies.forEach((pharmacy) => {
+          const inventory = inventoryData.find(
+            (item) =>
+              item.managedBy.pharmacistProfile?.pharmacyAffiliation ===
+              pharmacy.name
           );
           pharmacy.hasRequestedMedicine = !!inventory;
           pharmacy.quantity = inventory?.quantity || 0;
@@ -132,16 +142,16 @@ const pharmacyController = {
           pharmacies: filteredPharmacies,
           searchCenter: {
             latitude: parseFloat(latitude),
-            longitude: parseFloat(longitude)
+            longitude: parseFloat(longitude),
           },
-          radius: parseFloat(radius)
-        }
+          radius: parseFloat(radius),
+        },
       });
     } catch (error) {
       logger.error('Get nearby pharmacies error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get nearby pharmacies'
+        message: 'Failed to get nearby pharmacies',
       });
     }
   },
@@ -150,20 +160,26 @@ const pharmacyController = {
   getPharmacyInventory: async (req, res) => {
     try {
       const { pharmacyId } = req.params;
-      const { search, medicineType, inStockOnly, page = 1, limit = 50 } = req.query;
+      const {
+        search,
+        medicineType,
+        inStockOnly,
+        page = 1,
+        limit = 50,
+      } = req.query;
 
       // Only pharmacists can view their inventory
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
       const skip = (page - 1) * limit;
       const where = {
         managedById: req.user.id,
-        isActive: true
+        isActive: true,
       };
 
       if (inStockOnly === 'true') {
@@ -173,15 +189,15 @@ const pharmacyController = {
       // Add search and filter conditions
       if (search || medicineType) {
         where.medicine = {};
-        
+
         if (search) {
           where.medicine.OR = [
             { name: { contains: search, mode: 'insensitive' } },
             { genericName: { contains: search, mode: 'insensitive' } },
-            { brand: { contains: search, mode: 'insensitive' } }
+            { brand: { contains: search, mode: 'insensitive' } },
           ];
         }
-        
+
         if (medicineType) {
           where.medicine.type = medicineType;
         }
@@ -191,13 +207,13 @@ const pharmacyController = {
         prisma.inventoryItem.findMany({
           where,
           include: {
-            medicine: true
+            medicine: true,
           },
           orderBy: { medicine: { name: 'asc' } },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.inventoryItem.count({ where })
+        prisma.inventoryItem.count({ where }),
       ]);
 
       res.json({
@@ -208,15 +224,15 @@ const pharmacyController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get pharmacy inventory error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get pharmacy inventory'
+        message: 'Failed to get pharmacy inventory',
       });
     }
   },
@@ -231,14 +247,14 @@ const pharmacyController = {
         unitPrice,
         expiryDate,
         supplierName,
-        lowStockAlert = 10
+        lowStockAlert = 10,
       } = req.body;
 
       // Only pharmacists can manage inventory
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
@@ -251,32 +267,34 @@ const pharmacyController = {
           unitPrice,
           expiryDate: new Date(expiryDate),
           supplierName,
-          lowStockAlert
+          lowStockAlert,
         },
         include: {
-          medicine: true
-        }
+          medicine: true,
+        },
       });
 
-      logger.info(`Inventory item added: ${inventoryItem.id} by ${req.user.email}`);
+      logger.info(
+        `Inventory item added: ${inventoryItem.id} by ${req.user.email}`
+      );
 
       res.status(201).json({
         success: true,
         message: 'Medicine added to inventory successfully',
-        data: inventoryItem
+        data: inventoryItem,
       });
     } catch (error) {
       if (error.code === 'P2002') {
         return res.status(400).json({
           success: false,
-          message: 'This batch number already exists for this medicine'
+          message: 'This batch number already exists for this medicine',
         });
       }
 
       logger.error('Add to inventory error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to add medicine to inventory'
+        message: 'Failed to add medicine to inventory',
       });
     }
   },
@@ -291,18 +309,18 @@ const pharmacyController = {
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
       const inventoryItem = await prisma.inventoryItem.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!inventoryItem) {
         return res.status(404).json({
           success: false,
-          message: 'Inventory item not found'
+          message: 'Inventory item not found',
         });
       }
 
@@ -310,7 +328,7 @@ const pharmacyController = {
       if (inventoryItem.pharmacistId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -318,8 +336,8 @@ const pharmacyController = {
         where: { id },
         data: updateData,
         include: {
-          medicine: true
-        }
+          medicine: true,
+        },
       });
 
       logger.info(`Inventory item updated: ${id} by ${req.user.email}`);
@@ -327,13 +345,13 @@ const pharmacyController = {
       res.json({
         success: true,
         message: 'Inventory item updated successfully',
-        data: updatedItem
+        data: updatedItem,
       });
     } catch (error) {
       logger.error('Update inventory item error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update inventory item'
+        message: 'Failed to update inventory item',
       });
     }
   },
@@ -345,7 +363,7 @@ const pharmacyController = {
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
@@ -356,29 +374,29 @@ const pharmacyController = {
           OR: [
             {
               quantity: {
-                lte: prisma.inventoryItem.fields.lowStockAlert
-              }
-            }
-          ]
+                lte: prisma.inventoryItem.fields.lowStockAlert,
+              },
+            },
+          ],
         },
         include: {
-          medicine: true
+          medicine: true,
         },
-        orderBy: { quantity: 'asc' }
+        orderBy: { quantity: 'asc' },
       });
 
       res.json({
         success: true,
         data: {
           lowStockItems,
-          count: lowStockItems.length
-        }
+          count: lowStockItems.length,
+        },
       });
     } catch (error) {
       logger.error('Get low stock alerts error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get low stock alerts'
+        message: 'Failed to get low stock alerts',
       });
     }
   },
@@ -392,7 +410,7 @@ const pharmacyController = {
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
@@ -404,13 +422,13 @@ const pharmacyController = {
           managedById: req.user.id,
           isActive: true,
           expiryDate: {
-            lte: expiryDate
-          }
+            lte: expiryDate,
+          },
         },
         include: {
-          medicine: true
+          medicine: true,
         },
-        orderBy: { expiryDate: 'asc' }
+        orderBy: { expiryDate: 'asc' },
       });
 
       res.json({
@@ -418,14 +436,14 @@ const pharmacyController = {
         data: {
           expiringItems,
           count: expiringItems.length,
-          daysAhead: parseInt(days)
-        }
+          daysAhead: parseInt(days),
+        },
       });
     } catch (error) {
       logger.error('Get expiring medicines error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get expiring medicines'
+        message: 'Failed to get expiring medicines',
       });
     }
   },
@@ -437,7 +455,7 @@ const pharmacyController = {
       if (req.user.role !== 'PHARMACIST') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Pharmacist role required.'
+          message: 'Access denied. Pharmacist role required.',
         });
       }
 
@@ -446,47 +464,47 @@ const pharmacyController = {
         lowStockCount,
         expiringCount,
         totalValue,
-        dispensedCount
+        dispensedCount,
       ] = await Promise.all([
         prisma.inventoryItem.count({
           where: {
             managedById: req.user.id,
-            isActive: true
-          }
+            isActive: true,
+          },
         }),
         prisma.inventoryItem.count({
           where: {
             managedById: req.user.id,
             isActive: true,
-            quantity: { lte: 10 } // Assuming 10 as low stock threshold
-          }
+            quantity: { lte: 10 }, // Assuming 10 as low stock threshold
+          },
         }),
         prisma.inventoryItem.count({
           where: {
             managedById: req.user.id,
             isActive: true,
             expiryDate: {
-              lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
-            }
-          }
+              lte: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+            },
+          },
         }),
         prisma.inventoryItem.aggregate({
           where: {
             managedById: req.user.id,
-            isActive: true
+            isActive: true,
           },
           _sum: {
-            quantity: true
-          }
+            quantity: true,
+          },
         }),
         prisma.prescriptionItem.count({
           where: {
             prescription: {
-              pharmacistId: req.user.id
+              pharmacistId: req.user.id,
             },
-            isDispensed: true
-          }
-        })
+            isDispensed: true,
+          },
+        }),
       ]);
 
       res.json({
@@ -496,21 +514,21 @@ const pharmacyController = {
             totalItems: totalInventoryItems,
             lowStockItems: lowStockCount,
             expiringItems: expiringCount,
-            totalQuantity: totalValue._sum.quantity || 0
+            totalQuantity: totalValue._sum.quantity || 0,
           },
           prescriptions: {
-            totalDispensed: dispensedCount
-          }
-        }
+            totalDispensed: dispensedCount,
+          },
+        },
       });
     } catch (error) {
       logger.error('Get pharmacy analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get pharmacy analytics'
+        message: 'Failed to get pharmacy analytics',
       });
     }
-  }
+  },
 };
 
 module.exports = pharmacyController;

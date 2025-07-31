@@ -15,14 +15,14 @@ const labResultController = {
         orderedDate,
         labName,
         technicianName,
-        notes
+        notes,
       } = req.body;
 
       // Only doctors can order lab tests
       if (req.user.role !== 'DOCTOR') {
         return res.status(403).json({
           success: false,
-          message: 'Only doctors can order lab tests'
+          message: 'Only doctors can order lab tests',
         });
       }
 
@@ -35,7 +35,7 @@ const labResultController = {
           orderedDate: orderedDate ? new Date(orderedDate) : new Date(),
           labName,
           technicianName,
-          notes
+          notes,
         },
         include: {
           patient: {
@@ -44,17 +44,17 @@ const labResultController = {
               firstName: true,
               lastName: true,
               email: true,
-              phone: true
-            }
+              phone: true,
+            },
           },
           appointment: {
             select: {
               id: true,
               appointmentDate: true,
-              type: true
-            }
-          }
-        }
+              type: true,
+            },
+          },
+        },
       });
 
       // Create notification for patient
@@ -64,22 +64,24 @@ const labResultController = {
           type: 'LAB_RESULT',
           title: 'Lab Test Ordered',
           message: `A ${testName} test has been ordered for you`,
-          data: { labResultId: labResult.id }
-        }
+          data: { labResultId: labResult.id },
+        },
       });
 
-      logger.info(`Lab result created: ${labResult.id} by Dr. ${req.user.email}`);
+      logger.info(
+        `Lab result created: ${labResult.id} by Dr. ${req.user.email}`
+      );
 
       res.status(201).json({
         success: true,
         message: 'Lab test ordered successfully',
-        data: labResult
+        data: labResult,
       });
     } catch (error) {
       logger.error('Create lab result error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create lab result'
+        message: 'Failed to create lab result',
       });
     }
   },
@@ -94,7 +96,7 @@ const labResultController = {
         startDate,
         endDate,
         page = 1,
-        limit = 20
+        limit = 20,
       } = req.query;
 
       const skip = (page - 1) * limit;
@@ -107,11 +109,11 @@ const labResultController = {
         // Doctors can see results they reviewed or for their patients
         where.OR = [
           { reviewedById: req.user.id },
-          { 
+          {
             appointment: {
-              doctorId: req.user.id
-            }
-          }
+              doctorId: req.user.id,
+            },
+          },
         ];
       }
 
@@ -136,8 +138,8 @@ const labResultController = {
                 lastName: true,
                 email: true,
                 phone: true,
-                profileImage: true
-              }
+                profileImage: true,
+              },
             },
             appointment: {
               select: {
@@ -149,25 +151,25 @@ const labResultController = {
                     id: true,
                     firstName: true,
                     lastName: true,
-                    doctorProfile: true
-                  }
-                }
-              }
+                    doctorProfile: true,
+                  },
+                },
+              },
             },
             reviewedBy: {
               select: {
                 id: true,
                 firstName: true,
                 lastName: true,
-                doctorProfile: true
-              }
-            }
+                doctorProfile: true,
+              },
+            },
           },
           orderBy: { orderedDate: 'desc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.labResult.count({ where })
+        prisma.labResult.count({ where }),
       ]);
 
       res.json({
@@ -178,15 +180,15 @@ const labResultController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get lab results error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get lab results'
+        message: 'Failed to get lab results',
       });
     }
   },
@@ -207,8 +209,8 @@ const labResultController = {
               email: true,
               phone: true,
               profileImage: true,
-              patientProfile: true
-            }
+              patientProfile: true,
+            },
           },
           appointment: {
             select: {
@@ -220,51 +222,52 @@ const labResultController = {
                   id: true,
                   firstName: true,
                   lastName: true,
-                  doctorProfile: true
-                }
-              }
-            }
+                  doctorProfile: true,
+                },
+              },
+            },
           },
           reviewedBy: {
             select: {
               id: true,
               firstName: true,
               lastName: true,
-              doctorProfile: true
-            }
-          }
-        }
+              doctorProfile: true,
+            },
+          },
+        },
       });
 
       if (!labResult) {
         return res.status(404).json({
           success: false,
-          message: 'Lab result not found'
+          message: 'Lab result not found',
         });
       }
 
       // Check authorization
-      const hasAccess = 
+      const hasAccess =
         labResult.patientId === req.user.id ||
         labResult.reviewedById === req.user.id ||
-        (labResult.appointment && labResult.appointment.doctor.id === req.user.id);
+        (labResult.appointment &&
+          labResult.appointment.doctor.id === req.user.id);
 
       if (!hasAccess) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
       res.json({
         success: true,
-        data: labResult
+        data: labResult,
       });
     } catch (error) {
       logger.error('Get lab result error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get lab result'
+        message: 'Failed to get lab result',
       });
     }
   },
@@ -279,20 +282,20 @@ const labResultController = {
         normalRanges,
         isAbnormal,
         notes,
-        completedDate
+        completedDate,
       } = req.body;
 
       const labResult = await prisma.labResult.findUnique({
         where: { id },
         include: {
-          patient: true
-        }
+          patient: true,
+        },
       });
 
       if (!labResult) {
         return res.status(404).json({
           success: false,
-          message: 'Lab result not found'
+          message: 'Lab result not found',
         });
       }
 
@@ -300,7 +303,7 @@ const labResultController = {
       if (req.user.role !== 'DOCTOR') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
@@ -310,7 +313,8 @@ const labResultController = {
       if (normalRanges !== undefined) updateData.normalRanges = normalRanges;
       if (isAbnormal !== undefined) updateData.isAbnormal = isAbnormal;
       if (notes !== undefined) updateData.notes = notes;
-      if (completedDate !== undefined) updateData.completedDate = new Date(completedDate);
+      if (completedDate !== undefined)
+        updateData.completedDate = new Date(completedDate);
 
       // Set reviewed fields if marking as completed
       if (status === 'COMPLETED' || status === 'REVIEWED') {
@@ -326,10 +330,10 @@ const labResultController = {
             select: {
               id: true,
               firstName: true,
-              lastName: true
-            }
-          }
-        }
+              lastName: true,
+            },
+          },
+        },
       });
 
       // Create notification for patient when results are ready
@@ -340,8 +344,8 @@ const labResultController = {
             type: 'LAB_RESULT',
             title: 'Lab Results Ready',
             message: `Your ${labResult.testName} results are now available`,
-            data: { labResultId: id }
-          }
+            data: { labResultId: id },
+          },
         });
       }
 
@@ -350,13 +354,13 @@ const labResultController = {
       res.json({
         success: true,
         message: 'Lab result updated successfully',
-        data: updatedLabResult
+        data: updatedLabResult,
       });
     } catch (error) {
       logger.error('Update lab result error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update lab result'
+        message: 'Failed to update lab result',
       });
     }
   },
@@ -367,13 +371,13 @@ const labResultController = {
       const { id } = req.params;
 
       const labResult = await prisma.labResult.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!labResult) {
         return res.status(404).json({
           success: false,
-          message: 'Lab result not found'
+          message: 'Lab result not found',
         });
       }
 
@@ -381,25 +385,25 @@ const labResultController = {
       if (req.user.role !== 'DOCTOR' && req.user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied'
+          message: 'Access denied',
         });
       }
 
       await prisma.labResult.delete({
-        where: { id }
+        where: { id },
       });
 
       logger.info(`Lab result deleted: ${id} by ${req.user.email}`);
 
       res.json({
         success: true,
-        message: 'Lab result deleted successfully'
+        message: 'Lab result deleted successfully',
       });
     } catch (error) {
       logger.error('Delete lab result error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete lab result'
+        message: 'Failed to delete lab result',
       });
     }
   },
@@ -416,7 +420,7 @@ const labResultController = {
           description: 'Measures different components of blood',
           normalFasting: false,
           estimatedTime: '24 hours',
-          price: 25.00
+          price: 25.0,
         },
         {
           id: 'lipid_panel',
@@ -425,7 +429,7 @@ const labResultController = {
           description: 'Cholesterol and triglyceride levels',
           normalFasting: true,
           estimatedTime: '24 hours',
-          price: 35.00
+          price: 35.0,
         },
         {
           id: 'thyroid_function',
@@ -434,7 +438,7 @@ const labResultController = {
           description: 'TSH, T3, T4 levels',
           normalFasting: false,
           estimatedTime: '48 hours',
-          price: 45.00
+          price: 45.0,
         },
         {
           id: 'glucose_fasting',
@@ -443,7 +447,7 @@ const labResultController = {
           description: 'Blood sugar level after fasting',
           normalFasting: true,
           estimatedTime: '12 hours',
-          price: 15.00
+          price: 15.0,
         },
         {
           id: 'hba1c',
@@ -452,7 +456,7 @@ const labResultController = {
           description: 'Average blood sugar over 3 months',
           normalFasting: false,
           estimatedTime: '24 hours',
-          price: 30.00
+          price: 30.0,
         },
         {
           id: 'vitamin_d',
@@ -461,19 +465,19 @@ const labResultController = {
           description: '25-Hydroxy Vitamin D level',
           normalFasting: false,
           estimatedTime: '48 hours',
-          price: 40.00
-        }
+          price: 40.0,
+        },
       ];
 
       res.json({
         success: true,
-        data: availableTests
+        data: availableTests,
       });
     } catch (error) {
       logger.error('Get available tests error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get available tests'
+        message: 'Failed to get available tests',
       });
     }
   },
@@ -482,18 +486,18 @@ const labResultController = {
   getLabResultAnalytics: async (req, res) => {
     try {
       const { startDate, endDate } = req.query;
-      
+
       const where = {};
       if (req.user.role === 'PATIENT') {
         where.patientId = req.user.id;
       } else if (req.user.role === 'DOCTOR') {
         where.OR = [
           { reviewedById: req.user.id },
-          { 
+          {
             appointment: {
-              doctorId: req.user.id
-            }
-          }
+              doctorId: req.user.id,
+            },
+          },
         ];
       }
 
@@ -503,27 +507,23 @@ const labResultController = {
         if (endDate) where.orderedDate.lte = new Date(endDate);
       }
 
-      const [
-        total,
-        pending,
-        inProgress,
-        completed,
-        abnormal,
-        testsByType
-      ] = await Promise.all([
-        prisma.labResult.count({ where }),
-        prisma.labResult.count({ where: { ...where, status: 'PENDING' } }),
-        prisma.labResult.count({ where: { ...where, status: 'IN_PROGRESS' } }),
-        prisma.labResult.count({ where: { ...where, status: 'COMPLETED' } }),
-        prisma.labResult.count({ where: { ...where, isAbnormal: true } }),
-        prisma.labResult.groupBy({
-          by: ['testType'],
-          where,
-          _count: {
-            testType: true
-          }
-        })
-      ]);
+      const [total, pending, inProgress, completed, abnormal, testsByType] =
+        await Promise.all([
+          prisma.labResult.count({ where }),
+          prisma.labResult.count({ where: { ...where, status: 'PENDING' } }),
+          prisma.labResult.count({
+            where: { ...where, status: 'IN_PROGRESS' },
+          }),
+          prisma.labResult.count({ where: { ...where, status: 'COMPLETED' } }),
+          prisma.labResult.count({ where: { ...where, isAbnormal: true } }),
+          prisma.labResult.groupBy({
+            by: ['testType'],
+            where,
+            _count: {
+              testType: true,
+            },
+          }),
+        ]);
 
       res.json({
         success: true,
@@ -532,23 +532,23 @@ const labResultController = {
           statusBreakdown: {
             pending,
             inProgress,
-            completed
+            completed,
           },
           abnormalResults: abnormal,
-          testsByType: testsByType.map(item => ({
+          testsByType: testsByType.map((item) => ({
             testType: item.testType,
-            count: item._count.testType
-          }))
-        }
+            count: item._count.testType,
+          })),
+        },
       });
     } catch (error) {
       logger.error('Get lab result analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get lab result analytics'
+        message: 'Failed to get lab result analytics',
       });
     }
-  }
+  },
 };
 
 module.exports = labResultController;

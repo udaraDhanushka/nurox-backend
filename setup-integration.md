@@ -47,16 +47,19 @@ BCRYPT_ROUNDS=12
 ## Starting the Services
 
 1. **Backend** (run from nurox-backend directory):
+
 ```bash
 npm run dev
 ```
 
 2. **Dashboard** (run from nurox_dashboard directory):
+
 ```bash
 npm run dev
 ```
 
 3. **Mobile App** (run from nurox-mobile directory):
+
 ```bash
 npm start
 ```
@@ -64,6 +67,7 @@ npm start
 ## Testing the Integration
 
 ### 1. Create Super Admin User
+
 First, register a super admin user through the API:
 
 ```bash
@@ -79,20 +83,24 @@ curl -X POST http://localhost:3000/api/auth/register \
 ```
 
 ### 2. Login to Dashboard
+
 - Open http://localhost:3000 (dashboard)
 - Login with admin@nurox.com / admin123456
 - You should see the Super Admin Dashboard
 
 ### 3. Create a Hospital
+
 - In the dashboard, click "Add Organization"
 - Create a new hospital
 
 ### 4. Register a Doctor
+
 - Use the mobile app or API to register a doctor
 - Select the hospital you created
 - The hospital admin will receive a verification request
 
 ### 5. Test Real-time Updates
+
 - Make changes in one app (dashboard/mobile)
 - Verify they appear instantly in the other app
 
@@ -107,15 +115,18 @@ curl -X POST http://localhost:3000/api/auth/register \
 ## Troubleshooting
 
 ### Backend Won't Start
+
 - Check if PostgreSQL is running
 - Verify DATABASE_URL in .env
 - Run `npm install` to ensure dependencies
 
 ### Database Issues
+
 - Run `npx prisma migrate reset` to reset database
 - Check PostgreSQL logs for connection issues
 
 ### Socket Connection Issues
+
 - Verify CORS_ORIGIN includes your frontend URLs
 - Check browser console for socket errors
 

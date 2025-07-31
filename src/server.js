@@ -32,7 +32,9 @@ process.on('SIGINT', () => {
 
 server.listen(PORT, '0.0.0.0', () => {
   logger.info(`🚀 Server running on port ${PORT}`);
-  logger.info(`📚 API Documentation available at http://localhost:${PORT}/api/docs`);
+  logger.info(
+    `📚 API Documentation available at http://localhost:${PORT}/api/docs`
+  );
   logger.info(`🌐 Server also accessible at http://192.168.0.102:${PORT}`);
 });
 

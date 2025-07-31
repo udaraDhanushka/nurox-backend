@@ -10,7 +10,11 @@ router.use(authMiddleware);
 
 // Profile routes
 router.get('/profile', userController.getProfile);
-router.put('/profile', validate(schemas.updateProfile), userController.updateProfile);
+router.put(
+  '/profile',
+  validate(schemas.updateProfile),
+  userController.updateProfile
+);
 router.get('/role-data', userController.getRoleSpecificData);
 router.put('/language', userController.updateLanguage);
 

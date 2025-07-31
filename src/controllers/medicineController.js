@@ -19,14 +19,14 @@ const medicineController = {
         contraindications = [],
         manufacturer,
         isControlled = false,
-        requiresPrescription = true
+        requiresPrescription = true,
       } = req.body;
 
       // Only doctors and pharmacists can add medicines
       if (!['DOCTOR', 'PHARMACIST', 'ADMIN'].includes(req.user.role)) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Insufficient permissions.'
+          message: 'Access denied. Insufficient permissions.',
         });
       }
 
@@ -43,8 +43,8 @@ const medicineController = {
           contraindications,
           manufacturer,
           isControlled,
-          requiresPrescription
-        }
+          requiresPrescription,
+        },
       });
 
       logger.info(`Medicine created: ${medicine.name} by ${req.user.email}`);
@@ -52,20 +52,20 @@ const medicineController = {
       res.status(201).json({
         success: true,
         message: 'Medicine created successfully',
-        data: medicine
+        data: medicine,
       });
     } catch (error) {
       if (error.code === 'P2002') {
         return res.status(400).json({
           success: false,
-          message: 'Medicine with this name already exists'
+          message: 'Medicine with this name already exists',
         });
       }
-      
+
       logger.error('Create medicine error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to create medicine'
+        message: 'Failed to create medicine',
       });
     }
   },
@@ -79,7 +79,7 @@ const medicineController = {
         isControlled,
         requiresPrescription,
         page = 1,
-        limit = 20
+        limit = 20,
       } = req.query;
 
       const skip = (page - 1) * limit;
@@ -90,14 +90,16 @@ const medicineController = {
         where.OR = [
           { name: { contains: search, mode: 'insensitive' } },
           { genericName: { contains: search, mode: 'insensitive' } },
-          { brand: { contains: search, mode: 'insensitive' } }
+          { brand: { contains: search, mode: 'insensitive' } },
         ];
       }
 
       // Filters
       if (type) where.type = type;
-      if (isControlled !== undefined) where.isControlled = isControlled === 'true';
-      if (requiresPrescription !== undefined) where.requiresPrescription = requiresPrescription === 'true';
+      if (isControlled !== undefined)
+        where.isControlled = isControlled === 'true';
+      if (requiresPrescription !== undefined)
+        where.requiresPrescription = requiresPrescription === 'true';
 
       const [medicines, total] = await Promise.all([
         prisma.medicine.findMany({
@@ -105,15 +107,15 @@ const medicineController = {
           include: {
             _count: {
               select: {
-                prescriptionItems: true
-              }
-            }
+                prescriptionItems: true,
+              },
+            },
           },
           orderBy: { name: 'asc' },
           skip: parseInt(skip),
-          take: parseInt(limit)
+          take: parseInt(limit),
         }),
-        prisma.medicine.count({ where })
+        prisma.medicine.count({ where }),
       ]);
 
       res.json({
@@ -124,15 +126,15 @@ const medicineController = {
             page: parseInt(page),
             limit: parseInt(limit),
             total,
-            pages: Math.ceil(total / limit)
-          }
-        }
+            pages: Math.ceil(total / limit),
+          },
+        },
       });
     } catch (error) {
       logger.error('Get medicines error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get medicines'
+        message: 'Failed to get medicines',
       });
     }
   },
@@ -151,10 +153,10 @@ const medicineController = {
                 select: {
                   id: true,
                   name: true,
-                  genericName: true
-                }
-              }
-            }
+                  genericName: true,
+                },
+              },
+            },
           },
           interactedWith: {
             include: {
@@ -162,15 +164,15 @@ const medicineController = {
                 select: {
                   id: true,
                   name: true,
-                  genericName: true
-                }
-              }
-            }
+                  genericName: true,
+                },
+              },
+            },
           },
           inventoryItems: {
             where: {
               isActive: true,
-              quantity: { gt: 0 }
+              quantity: { gt: 0 },
             },
             include: {
               managedBy: {
@@ -181,37 +183,37 @@ const medicineController = {
                   pharmacistProfile: {
                     select: {
                       pharmacyAffiliation: true,
-                      pharmacyAddress: true
-                    }
-                  }
-                }
-              }
-            }
+                      pharmacyAddress: true,
+                    },
+                  },
+                },
+              },
+            },
           },
           _count: {
             select: {
-              prescriptionItems: true
-            }
-          }
-        }
+              prescriptionItems: true,
+            },
+          },
+        },
       });
 
       if (!medicine) {
         return res.status(404).json({
           success: false,
-          message: 'Medicine not found'
+          message: 'Medicine not found',
         });
       }
 
       res.json({
         success: true,
-        data: medicine
+        data: medicine,
       });
     } catch (error) {
       logger.error('Get medicine error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get medicine'
+        message: 'Failed to get medicine',
       });
     }
   },
@@ -226,24 +228,24 @@ const medicineController = {
       if (!['DOCTOR', 'PHARMACIST', 'ADMIN'].includes(req.user.role)) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Insufficient permissions.'
+          message: 'Access denied. Insufficient permissions.',
         });
       }
 
       const medicine = await prisma.medicine.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!medicine) {
         return res.status(404).json({
           success: false,
-          message: 'Medicine not found'
+          message: 'Medicine not found',
         });
       }
 
       const updatedMedicine = await prisma.medicine.update({
         where: { id },
-        data: updateData
+        data: updateData,
       });
 
       logger.info(`Medicine updated: ${id} by ${req.user.email}`);
@@ -251,13 +253,13 @@ const medicineController = {
       res.json({
         success: true,
         message: 'Medicine updated successfully',
-        data: updatedMedicine
+        data: updatedMedicine,
       });
     } catch (error) {
       logger.error('Update medicine error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to update medicine'
+        message: 'Failed to update medicine',
       });
     }
   },
@@ -271,37 +273,37 @@ const medicineController = {
       if (req.user.role !== 'ADMIN') {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Admin role required.'
+          message: 'Access denied. Admin role required.',
         });
       }
 
       const medicine = await prisma.medicine.findUnique({
-        where: { id }
+        where: { id },
       });
 
       if (!medicine) {
         return res.status(404).json({
           success: false,
-          message: 'Medicine not found'
+          message: 'Medicine not found',
         });
       }
 
       await prisma.medicine.update({
         where: { id },
-        data: { isActive: false }
+        data: { isActive: false },
       });
 
       logger.info(`Medicine deleted: ${id} by ${req.user.email}`);
 
       res.json({
         success: true,
-        message: 'Medicine deleted successfully'
+        message: 'Medicine deleted successfully',
       });
     } catch (error) {
       logger.error('Delete medicine error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to delete medicine'
+        message: 'Failed to delete medicine',
       });
     }
   },
@@ -314,7 +316,7 @@ const medicineController = {
       if (!Array.isArray(medicineIds) || medicineIds.length < 2) {
         return res.status(400).json({
           success: false,
-          message: 'At least 2 medicine IDs are required'
+          message: 'At least 2 medicine IDs are required',
         });
       }
 
@@ -323,30 +325,30 @@ const medicineController = {
           OR: [
             {
               medicineAId: { in: medicineIds },
-              medicineBId: { in: medicineIds }
+              medicineBId: { in: medicineIds },
             },
             {
               medicineAId: { in: medicineIds },
-              medicineBId: { in: medicineIds }
-            }
-          ]
+              medicineBId: { in: medicineIds },
+            },
+          ],
         },
         include: {
           medicineA: {
             select: {
               id: true,
               name: true,
-              genericName: true
-            }
+              genericName: true,
+            },
           },
           medicineB: {
             select: {
               id: true,
               name: true,
-              genericName: true
-            }
-          }
-        }
+              genericName: true,
+            },
+          },
+        },
       });
 
       res.json({
@@ -354,14 +356,14 @@ const medicineController = {
         data: {
           interactions,
           hasInteractions: interactions.length > 0,
-          severityLevels: interactions.map(i => i.severity)
-        }
+          severityLevels: interactions.map((i) => i.severity),
+        },
       });
     } catch (error) {
       logger.error('Check interactions error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to check drug interactions'
+        message: 'Failed to check drug interactions',
       });
     }
   },
@@ -375,7 +377,7 @@ const medicineController = {
       if (!['DOCTOR', 'PHARMACIST', 'ADMIN'].includes(req.user.role)) {
         return res.status(403).json({
           success: false,
-          message: 'Access denied. Insufficient permissions.'
+          message: 'Access denied. Insufficient permissions.',
         });
       }
 
@@ -384,24 +386,24 @@ const medicineController = {
           medicineAId,
           medicineBId,
           severity,
-          description
+          description,
         },
         include: {
           medicineA: {
             select: {
               id: true,
               name: true,
-              genericName: true
-            }
+              genericName: true,
+            },
           },
           medicineB: {
             select: {
               id: true,
               name: true,
-              genericName: true
-            }
-          }
-        }
+              genericName: true,
+            },
+          },
+        },
       });
 
       logger.info(`Drug interaction added by ${req.user.email}`);
@@ -409,20 +411,20 @@ const medicineController = {
       res.status(201).json({
         success: true,
         message: 'Drug interaction added successfully',
-        data: interaction
+        data: interaction,
       });
     } catch (error) {
       if (error.code === 'P2002') {
         return res.status(400).json({
           success: false,
-          message: 'Interaction between these medicines already exists'
+          message: 'Interaction between these medicines already exists',
         });
       }
 
       logger.error('Add interaction error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to add drug interaction'
+        message: 'Failed to add drug interaction',
       });
     }
   },
@@ -435,7 +437,7 @@ const medicineController = {
       if (!query || query.length < 2) {
         return res.json({
           success: true,
-          data: []
+          data: [],
         });
       }
 
@@ -445,8 +447,8 @@ const medicineController = {
           OR: [
             { name: { contains: query, mode: 'insensitive' } },
             { genericName: { contains: query, mode: 'insensitive' } },
-            { brand: { contains: query, mode: 'insensitive' } }
-          ]
+            { brand: { contains: query, mode: 'insensitive' } },
+          ],
         },
         select: {
           id: true,
@@ -455,21 +457,21 @@ const medicineController = {
           brand: true,
           type: true,
           strength: true,
-          unit: true
+          unit: true,
         },
         take: parseInt(limit),
-        orderBy: { name: 'asc' }
+        orderBy: { name: 'asc' },
       });
 
       res.json({
         success: true,
-        data: medicines
+        data: medicines,
       });
     } catch (error) {
       logger.error('Get medicine suggestions error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get medicine suggestions'
+        message: 'Failed to get medicine suggestions',
       });
     }
   },
@@ -482,28 +484,34 @@ const medicineController = {
         controlledMedicines,
         prescriptionMedicines,
         otcMedicines,
-        mostPrescribed
+        mostPrescribed,
       ] = await Promise.all([
         prisma.medicine.count({ where: { isActive: true } }),
-        prisma.medicine.count({ where: { isActive: true, isControlled: true } }),
-        prisma.medicine.count({ where: { isActive: true, requiresPrescription: true } }),
-        prisma.medicine.count({ where: { isActive: true, requiresPrescription: false } }),
+        prisma.medicine.count({
+          where: { isActive: true, isControlled: true },
+        }),
+        prisma.medicine.count({
+          where: { isActive: true, requiresPrescription: true },
+        }),
+        prisma.medicine.count({
+          where: { isActive: true, requiresPrescription: false },
+        }),
         prisma.medicine.findMany({
           where: { isActive: true },
           include: {
             _count: {
               select: {
-                prescriptionItems: true
-              }
-            }
+                prescriptionItems: true,
+              },
+            },
           },
           orderBy: {
             prescriptionItems: {
-              _count: 'desc'
-            }
+              _count: 'desc',
+            },
           },
-          take: 10
-        })
+          take: 10,
+        }),
       ]);
 
       res.json({
@@ -513,22 +521,22 @@ const medicineController = {
           controlledMedicines,
           prescriptionMedicines,
           otcMedicines,
-          mostPrescribed: mostPrescribed.map(med => ({
+          mostPrescribed: mostPrescribed.map((med) => ({
             id: med.id,
             name: med.name,
             genericName: med.genericName,
-            prescriptionCount: med._count.prescriptionItems
-          }))
-        }
+            prescriptionCount: med._count.prescriptionItems,
+          })),
+        },
       });
     } catch (error) {
       logger.error('Get medicine analytics error:', error);
       res.status(500).json({
         success: false,
-        message: 'Failed to get medicine analytics'
+        message: 'Failed to get medicine analytics',
       });
     }
-  }
+  },
 };
 
 module.exports = medicineController;

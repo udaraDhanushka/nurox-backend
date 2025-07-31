@@ -15,9 +15,12 @@ class RealtimeService {
   initialize(server) {
     this.io = new Server(server, {
       cors: {
-        origin: process.env.CORS_ORIGIN?.split(',') || ["http://localhost:8081", "http://localhost:3000"],
-        credentials: true
-      }
+        origin: process.env.CORS_ORIGIN?.split(',') || [
+          'http://localhost:8081',
+          'http://localhost:3000',
+        ],
+        credentials: true,
+      },
     });
 
     this.io.use(this.authenticateSocket.bind(this));
@@ -29,13 +32,13 @@ class RealtimeService {
   async authenticateSocket(socket, next) {
     try {
       const token = socket.handshake.auth.token;
-      
+
       if (!token) {
         return next(new Error('Authentication token required'));
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      
+
       // Check if session exists and is valid
       const session = await prisma.session.findUnique({
         where: { token },
@@ -49,13 +52,17 @@ class RealtimeService {
               hospital: true,
               pharmacy: true,
               laboratory: true,
-              insuranceCompany: true
-            }
-          }
-        }
+              insuranceCompany: true,
+            },
+          },
+        },
       });
 
-      if (!session || session.expiresAt < new Date() || !session.user.isActive) {
+      if (
+        !session ||
+        session.expiresAt < new Date() ||
+        !session.user.isActive
+      ) {
         return next(new Error('Invalid or expired token'));
       }
 
@@ -133,7 +140,7 @@ class RealtimeService {
 
   async sendToUsers(userIds, event, data) {
     const results = await Promise.all(
-      userIds.map(userId => this.sendToUser(userId, event, data))
+      userIds.map((userId) => this.sendToUser(userId, event, data))
     );
     return results.filter(Boolean).length;
   }
@@ -173,7 +180,7 @@ class RealtimeService {
       appointmentId: appointment.id,
       status: appointment.status,
       appointmentDate: appointment.appointmentDate,
-      message: `Your appointment has been ${appointment.status.toLowerCase()}`
+      message: `Your appointment has been ${appointment.status.toLowerCase()}`,
     });
 
     // Notify doctor
@@ -181,22 +188,26 @@ class RealtimeService {
       appointmentId: appointment.id,
       status: appointment.status,
       patientName: `${appointment.patient?.firstName} ${appointment.patient?.lastName}`,
-      message: `Appointment with patient has been ${appointment.status.toLowerCase()}`
+      message: `Appointment with patient has been ${appointment.status.toLowerCase()}`,
     });
 
     // Notify hospital if doctor is affiliated
     const doctor = await prisma.user.findUnique({
       where: { id: appointment.doctorId },
-      include: { doctorProfile: true }
+      include: { doctorProfile: true },
     });
 
     if (doctor?.hospitalId) {
-      await this.sendToHospital(doctor.hospitalId, 'hospital:appointment:updated', {
-        appointmentId: appointment.id,
-        doctorId: appointment.doctorId,
-        patientId: appointment.patientId,
-        status: appointment.status
-      });
+      await this.sendToHospital(
+        doctor.hospitalId,
+        'hospital:appointment:updated',
+        {
+          appointmentId: appointment.id,
+          doctorId: appointment.doctorId,
+          patientId: appointment.patientId,
+          status: appointment.status,
+        }
+      );
     }
   }
 
@@ -205,14 +216,14 @@ class RealtimeService {
     await this.sendToUser(prescription.patientId, 'prescription:updated', {
       prescriptionId: prescription.id,
       status: prescription.status,
-      message: `Your prescription is ${prescription.status.toLowerCase()}`
+      message: `Your prescription is ${prescription.status.toLowerCase()}`,
     });
 
     // Notify doctor
     await this.sendToUser(prescription.doctorId, 'prescription:updated', {
       prescriptionId: prescription.id,
       status: prescription.status,
-      message: `Prescription status updated to ${prescription.status.toLowerCase()}`
+      message: `Prescription status updated to ${prescription.status.toLowerCase()}`,
     });
 
     // Notify pharmacist if assigned
@@ -220,36 +231,42 @@ class RealtimeService {
       await this.sendToUser(prescription.pharmacistId, 'prescription:updated', {
         prescriptionId: prescription.id,
         status: prescription.status,
-        patientName: `${prescription.patient?.firstName} ${prescription.patient?.lastName}`
+        patientName: `${prescription.patient?.firstName} ${prescription.patient?.lastName}`,
       });
     }
   }
 
-  async notifyDoctorVerificationUpdate(doctorId, hospitalId, status, rejectionReason = null) {
+  async notifyDoctorVerificationUpdate(
+    doctorId,
+    hospitalId,
+    status,
+    rejectionReason = null
+  ) {
     // Notify doctor
     await this.sendToUser(doctorId, 'verification:updated', {
       status,
       hospitalId,
       rejectionReason,
-      message: status === 'APPROVED' 
-        ? 'Your doctor verification has been approved!'
-        : status === 'REJECTED'
-        ? `Your doctor verification was rejected: ${rejectionReason || 'No reason provided'}`
-        : 'Your doctor verification needs review'
+      message:
+        status === 'APPROVED'
+          ? 'Your doctor verification has been approved!'
+          : status === 'REJECTED'
+            ? `Your doctor verification was rejected: ${rejectionReason || 'No reason provided'}`
+            : 'Your doctor verification needs review',
     });
 
     // Notify hospital admins
     await this.sendToHospital(hospitalId, 'hospital:doctor:verification', {
       doctorId,
       status,
-      message: `Doctor verification ${status.toLowerCase()}`
+      message: `Doctor verification ${status.toLowerCase()}`,
     });
 
     // Notify super admins
     await this.sendToSuperAdmins('admin:doctor:verification', {
       doctorId,
       hospitalId,
-      status
+      status,
     });
   }
 
@@ -260,7 +277,7 @@ class RealtimeService {
       testName: labResult.testName,
       status: labResult.status,
       isAbnormal: labResult.isAbnormal,
-      message: `Your ${labResult.testName} test results are ${labResult.status.toLowerCase()}`
+      message: `Your ${labResult.testName} test results are ${labResult.status.toLowerCase()}`,
     });
 
     // Notify reviewing doctor if any
@@ -270,16 +287,20 @@ class RealtimeService {
         patientId: labResult.patientId,
         testName: labResult.testName,
         status: labResult.status,
-        isAbnormal: labResult.isAbnormal
+        isAbnormal: labResult.isAbnormal,
       });
     }
 
     // Notify laboratory
     if (labResult.laboratoryId) {
-      await this.sendToLaboratory(labResult.laboratoryId, 'lab:result:updated', {
-        labResultId: labResult.id,
-        status: labResult.status
-      });
+      await this.sendToLaboratory(
+        labResult.laboratoryId,
+        'lab:result:updated',
+        {
+          labResultId: labResult.id,
+          status: labResult.status,
+        }
+      );
     }
   }
 
@@ -290,7 +311,7 @@ class RealtimeService {
       name: organization.name,
       type,
       status: organization.status,
-      message: `New ${type} registration: ${organization.name}`
+      message: `New ${type} registration: ${organization.name}`,
     });
   }
 
@@ -298,7 +319,7 @@ class RealtimeService {
     const alertData = {
       message,
       timestamp: new Date().toISOString(),
-      type: 'SYSTEM_ALERT'
+      type: 'SYSTEM_ALERT',
     };
 
     if (targetRole) {
@@ -307,7 +328,9 @@ class RealtimeService {
       // Send to all users in the organization
       this.io.to(`hospital:${organizationId}`).emit('system:alert', alertData);
       this.io.to(`pharmacy:${organizationId}`).emit('system:alert', alertData);
-      this.io.to(`laboratory:${organizationId}`).emit('system:alert', alertData);
+      this.io
+        .to(`laboratory:${organizationId}`)
+        .emit('system:alert', alertData);
       this.io.to(`insurance:${organizationId}`).emit('system:alert', alertData);
     } else {
       // Broadcast to all connected users
@@ -322,7 +345,7 @@ class RealtimeService {
   getStats() {
     return {
       connectedUsers: this.userSockets.size,
-      totalRooms: this.io.sockets.adapter.rooms.size
+      totalRooms: this.io.sockets.adapter.rooms.size,
     };
   }
 }

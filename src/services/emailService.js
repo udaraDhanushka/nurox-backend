@@ -8,8 +8,14 @@ class EmailService {
   }
 
   initializeTransporter() {
-    if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
-      logger.warn('Email service not configured. Skipping email transporter initialization.');
+    if (
+      !process.env.SMTP_HOST ||
+      !process.env.SMTP_USER ||
+      !process.env.SMTP_PASS
+    ) {
+      logger.warn(
+        'Email service not configured. Skipping email transporter initialization.'
+      );
       return;
     }
 
@@ -19,8 +25,8 @@ class EmailService {
       secure: false, // true for 465, false for other ports
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
+        pass: process.env.SMTP_PASS,
+      },
     });
 
     // Verify connection configuration
@@ -45,7 +51,7 @@ class EmailService {
         to,
         subject,
         html,
-        text: text || this.stripHtml(html)
+        text: text || this.stripHtml(html),
       };
 
       const result = await this.transporter.sendMail(mailOptions);
@@ -82,7 +88,7 @@ class EmailService {
   async sendAppointmentReminder(appointment) {
     const subject = 'Appointment Reminder - Nurox Healthcare';
     const appointmentDate = new Date(appointment.appointmentDate);
-    
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Appointment Reminder</h2>
@@ -107,7 +113,7 @@ class EmailService {
 
   async sendPrescriptionReady(prescription) {
     const subject = 'Prescription Ready - Nurox Healthcare';
-    
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Your Prescription is Ready</h2>
@@ -130,7 +136,7 @@ class EmailService {
 
   async sendLabResultsReady(labResult) {
     const subject = 'Lab Results Available - Nurox Healthcare';
-    
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Your Lab Results are Ready</h2>
@@ -154,7 +160,7 @@ class EmailService {
   async sendPasswordResetEmail(email, resetToken) {
     const subject = 'Password Reset - Nurox Healthcare';
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
-    
+
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #2563eb;">Password Reset Request</h2>
@@ -199,7 +205,7 @@ class EmailService {
           <li>Chat with patients and doctors</li>
           <li>Track pharmacy analytics</li>
         </ul>
-      `
+      `,
     };
 
     return features[role] || '<p>Access to healthcare platform features.</p>';
